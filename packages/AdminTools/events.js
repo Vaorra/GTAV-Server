@@ -19,3 +19,6 @@ mp.events.add("playerJoin", function (player) {
     player.name = player.socialClub + " [" + player.id + "]";
     console.log(player.name + " (" + player.ip + ") connected!");
 });
+mp.events.add("playerQuit", function (player) {
+    console.log(player.name + " (" + player.ip + ") disconnected!");
+});

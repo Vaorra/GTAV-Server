@@ -13,4 +13,8 @@ mp.events.add("playerJoin", (player) => {
     player.outputChatBox(vstatic.prefix + "Welcome on the Vaorra Minigames server!");
     player.name = player.socialClub + " ["+player.id+"]";
     console.log(player.name + " ("+player.ip+") connected!");
-})
+});
+
+mp.events.add("playerQuit", (player) => {
+    console.log(player.name + " ("+player.ip+") disconnected!");
+});
