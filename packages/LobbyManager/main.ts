@@ -15,10 +15,33 @@ setInterval(() => {
 }, 1000);
 
 mp.events.add("requestLobbyData", (player: PlayerMp) => {
-    player.call("receiveLobbyData", [lobbies]);
+    player.call("receiveLobbyData", [lobbies.map(lobby => {
+        return {
+            id: lobby.getId(),
+            gameMode: lobby.getGameMode(),
+            running: lobby.isRunning(),
+            participants: lobby.getParticipants().map(participant => {
+                return {
+                    name: participant.player.name,
+                    ready: participant.isReady()
+                };
+            })
+        };
+    })]);
 });
 
-mp.events.add("startLobby", (lobbyId: number) => {
+mp.events.add("requestPlayerData", (player: PlayerMp) => {
+    player.call("receivePlayerData", [{
+        lobbyId: (() => {
+            let lobby = lobbies.find((lobby: Lobby) => {
+                return lobby.isParticipant(player);
+            });
+            return lobby ? lobby.getId() : null;
+        }).call(undefined)
+    }]);
+})
+
+mp.events.add("startLobby", (player: PlayerMp, lobbyId: number) => {
     lobbies.forEach((lobby) => {
         if (lobbyId === lobby.getId()) {
             (<any>lobbies[0]).run();
@@ -26,7 +49,7 @@ mp.events.add("startLobby", (lobbyId: number) => {
     });
 });
 
-mp.events.add("joinLobby", (lobbyId: number, player: PlayerMp) => {
+mp.events.add("joinLobby", (player: PlayerMp, lobbyId: number) => {
     lobbies.forEach((lobby) => {
         if (lobbyId === lobby.getId()) {
             lobby.join(player);
@@ -34,7 +57,7 @@ mp.events.add("joinLobby", (lobbyId: number, player: PlayerMp) => {
     });
 });
 
-mp.events.add("makeReady", (lobbyId: number, player: PlayerMp) => {
+mp.events.add("makeReady", (player: PlayerMp, lobbyId: number) => {
     lobbies.forEach((lobby) => {
         if (lobbyId === lobby.getId()) {
             lobby.makeReady(player);
@@ -42,7 +65,7 @@ mp.events.add("makeReady", (lobbyId: number, player: PlayerMp) => {
     });
 });
 
-mp.events.add("makeNotReady", (lobbyId: number, player: PlayerMp) => {
+mp.events.add("makeNotReady", (player: PlayerMp, lobbyId: number) => {
     lobbies.forEach((lobby) => {
         if (lobbyId === lobby.getId()) {
             lobby.makeNotReady(player);
@@ -50,14 +73,10 @@ mp.events.add("makeNotReady", (lobbyId: number, player: PlayerMp) => {
     });
 });
 
-mp.events.add("leaveLobby", (lobbyId: number, player: PlayerMp) => {
+mp.events.add("leaveLobby", (player: PlayerMp, lobbyId: number) => {
     lobbies.forEach((lobby) => {
         if (lobbyId === lobby.getId()) {
             lobby.leave(player);
         }
     });
-});
-
-mp.events.add("playerEnterVehicle", (player: PlayerMp, vehicle: VehicleMp, seat: number) => {
-    console.log("De gappian");
 });

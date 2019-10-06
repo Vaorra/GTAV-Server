@@ -46,6 +46,12 @@ var Lobby = /** @class */ (function () {
     Lobby.prototype.getId = function () {
         return this.id;
     };
+    Lobby.prototype.getGameMode = function () {
+        return this.gameMode;
+    };
+    Lobby.prototype.getDimension = function () {
+        return this.id;
+    };
     Lobby.prototype.isRunning = function () {
         return this.running;
     };
@@ -120,6 +126,12 @@ var Lobby = /** @class */ (function () {
         if (args[0].dimension === this.id) {
             callback(args);
         }
+    };
+    Lobby.prototype.messageAllParticipants = function (message) {
+        var _this = this;
+        this.participants.forEach(function (participant) {
+            participant.player.outputChatBox("[" + _this.gameMode + "] " + message);
+        });
     };
     //EVENTS
     Lobby.prototype.onPlayerEnterCheckpoint = function (checkpoint, player) {

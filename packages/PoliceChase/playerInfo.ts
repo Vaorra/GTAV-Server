@@ -4,7 +4,7 @@ export default interface PlayerInfo {
     weaponIds: number[];
 
     vehiclePos: Vector3Mp;
-    vehicleRot: Vector3Mp;
+    vehicleHeading: number;
     vehicleColor1: number;
     vehicleColor2: number;
     vehicleModel: number;

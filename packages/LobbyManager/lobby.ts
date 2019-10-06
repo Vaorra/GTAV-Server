@@ -1,4 +1,5 @@
 import Participant from "./participant";
+import { setInterval } from "timers";
 
 export default class Lobby {
     protected mp: Mp;
@@ -6,6 +7,8 @@ export default class Lobby {
     protected gameMode: string;
     protected running: boolean = false;
     protected participants: Participant[] = [];
+
+    private updateIntervall: NodeJS.Timeout;
 
     constructor(mp: Mp, id: number, gameMode: string) {
         this.mp = mp;
@@ -18,9 +21,19 @@ export default class Lobby {
             "playerDeath": (...args: any[]) => this.fowardIfInLobby(this.onPlayerDeath, args),
             "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit, args)
         });
+
+        this.updateIntervall = setInterval(this.onUpdate, 25); //Updates on 40Hz
     }
 
     getId() {
+        return this.id;
+    }
+
+    getGameMode() {
+        return this.gameMode;
+    }
+
+    getDimension() {
         return this.id;
     }
 
@@ -93,18 +106,26 @@ export default class Lobby {
     }
 
     end() {
+        clearInterval(this.updateIntervall);
         this.running = false;
-        this.participants = [];
 
         this.participants.forEach((participant) => {
             participant.player.dimension = 0;
         });
+
+        this.participants = [];
     }
 
     fowardIfInLobby(callback: Function, ...args: any) {
         if (args[0].dimension === this.id) {
             callback(args);
         }
+    }
+
+    messageAllParticipants(message: string) {
+        this.participants.forEach((participant) => {
+            participant.player.outputChatBox("[" + this.gameMode + "] " + message);
+        });
     }
 
     //EVENTS
@@ -118,5 +139,8 @@ export default class Lobby {
     }
 
     onPlayerQuit(player: PlayerMp, exitType: string, reason: string) {
+    }
+
+    onUpdate() {
     }
 }
