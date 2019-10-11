@@ -18,3 +18,7 @@ mp.events.add("playerJoin", (player) => {
 mp.events.add("playerQuit", (player) => {
     console.log(player.name + " ("+player.ip+") disconnected!");
 });
+
+mp.events.add("consoleLog", (data) => {
+    console.log(data);
+});

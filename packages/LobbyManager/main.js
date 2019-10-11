@@ -30,13 +30,15 @@ mp.events.add("requestLobbyData", function (player) {
         })]);
 });
 mp.events.add("requestPlayerData", function (player) {
+    var lobby = lobbies.find(function (lobby) {
+        return lobby.isParticipant(player);
+    });
+    var isReady = lobby.getParticipants().find(function (participant) {
+        return participant.player.id === player.id;
+    }).isReady();
     player.call("receivePlayerData", [{
-            lobbyId: (function () {
-                var lobby = lobbies.find(function (lobby) {
-                    return lobby.isParticipant(player);
-                });
-                return lobby ? lobby.getId() : null;
-            }).call(undefined)
+            lobbyId: lobby ? lobby.getId() : null,
+            isReady: isReady,
         }]);
 });
 mp.events.add("startLobby", function (player, lobbyId) {

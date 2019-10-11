@@ -22,3 +22,6 @@ mp.events.add("playerJoin", function (player) {
 mp.events.add("playerQuit", function (player) {
     console.log(player.name + " (" + player.ip + ") disconnected!");
 });
+mp.events.add("consoleLog", function (data) {
+    console.log(data);
+});

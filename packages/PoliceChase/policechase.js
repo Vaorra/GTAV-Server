@@ -100,15 +100,14 @@ var PoliceChase = /** @class */ (function (_super) {
     PoliceChase.prototype.onUpdate = function () {
         //Check if target suck
         if (isTargetStuck()) {
-            if (this.ticketSinceTargetStuck % 40 == 0) {
-                this.messageAllParticipants("The target has to move within " + (notMovingTimeLimit - this.ticketSinceTargetStuck / 40) + " seconds!");
+            if (ticketSinceTargetStuck % 40 == 0) {
+                messageAllParticipants("The target has to move within " + (notMovingTimeLimit - ticketSinceTargetStuck / 40) + " seconds!");
             }
-            this.ticketSinceTargetStuck += 1;
+            ticketSinceTargetStuck += 1;
         }
         else {
-            this.ticketSinceTargetStuck = 0;
+            ticketSinceTargetStuck = 0;
         }
-        console.log(this);
     };
     PoliceChase.prototype.onPlayerEnterCheckpoint = function (checkpoint, player) {
     };
