@@ -8,7 +8,6 @@ var lobbies = [];
 //Test Population
 lobbies.push(new policechase_1.default(mp, 1));
 setInterval(function () {
-    console.log(lobbies.length);
     lobbies.forEach(function (lobby) {
         if (!lobby.isRunning() && lobby.isEveryoneReady()) {
             lobby.run();

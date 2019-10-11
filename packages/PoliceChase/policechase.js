@@ -15,10 +15,18 @@ var __extends = (this && this.__extends) || (function () {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var lobby_1 = __importDefault(require("../LobbyManager/lobby"));
 var levelManager_1 = __importDefault(require("./levelManager"));
 var timers_1 = require("timers");
+var vstatic = __importStar(require("../AdminTools/static"));
 var notMovingDistanceLimit = 7;
 var notMovingSpeedLimit = 1;
 var notMovingTimeLimit = 5;
@@ -31,6 +39,17 @@ var PoliceChase = /** @class */ (function (_super) {
         _this.ticketSinceTargetStuck = 0; //1 second = 40 ticks
         return _this;
     }
+    PoliceChase.prototype.isTargetStuck = function () {
+        if (this.target.vehicle) {
+            for (var _i = 0, _a = this.chasers; _i < _a.length; _i++) {
+                var chaser = _a[_i];
+                if (chaser.vehicle && chaser.vehicle.position.subtract(this.target.vehicle.position).length() < notMovingDistanceLimit && this.target.vehicle.velocity.length() < notMovingSpeedLimit) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
     PoliceChase.prototype.run = function () {
         _super.prototype.start.call(this);
         //Random distribute roles
@@ -51,6 +70,8 @@ var PoliceChase = /** @class */ (function (_super) {
     };
     PoliceChase.prototype.finish = function () {
         var _this = this;
+        clearTimeout(this.startingPhaseTimeout);
+        clearTimeout(this.chasingPhaseEndedTimeout);
         //Delete all cars
         Object.keys(this.vehicles).forEach(function (playerId) {
             _this.vehicles[playerId].destroy();
@@ -67,8 +88,27 @@ var PoliceChase = /** @class */ (function (_super) {
         //Teleport all players to the spawn
         this.participants.forEach(function (participant) {
             var player = participant.player;
+            //TODO Stop the player from spectating
+            player.removeAllWeapons();
+            //TODO Set player model
+            player.health = 100;
+            player.dimension = 0;
+            player.spawn(vstatic.spawnPosition);
         });
         _super.prototype.end.call(this);
+    };
+    PoliceChase.prototype.onUpdate = function () {
+        //Check if target suck
+        if (isTargetStuck()) {
+            if (this.ticketSinceTargetStuck % 40 == 0) {
+                this.messageAllParticipants("The target has to move within " + (notMovingTimeLimit - this.ticketSinceTargetStuck / 40) + " seconds!");
+            }
+            this.ticketSinceTargetStuck += 1;
+        }
+        else {
+            this.ticketSinceTargetStuck = 0;
+        }
+        console.log(this);
     };
     PoliceChase.prototype.onPlayerEnterCheckpoint = function (checkpoint, player) {
     };
@@ -141,17 +181,6 @@ var PoliceChase = /** @class */ (function (_super) {
         //Target won
         this.messageAllParticipants("The target has won: The police didn't manage to catch the target!");
         this.finish();
-    };
-    PoliceChase.prototype.isTargetStuck = function () {
-        if (this.target.vehicle) {
-            for (var _i = 0, _a = this.chasers; _i < _a.length; _i++) {
-                var chaser = _a[_i];
-                if (chaser.vehicle && chaser.vehicle.position.subtract(this.target.vehicle.position).length() < notMovingDistanceLimit && this.target.vehicle.velocity.length() < notMovingSpeedLimit) {
-                    return true;
-                }
-            }
-        }
-        return false;
     };
     return PoliceChase;
 }(lobby_1.default));

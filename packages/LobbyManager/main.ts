@@ -1,5 +1,6 @@
 import Lobby from "./lobby";
 import PoliceChase from "../PoliceChase/policechase";
+import Participant from "./participant";
 
 let lobbies: Lobby[] = [];
 
@@ -31,13 +32,17 @@ mp.events.add("requestLobbyData", (player: PlayerMp) => {
 });
 
 mp.events.add("requestPlayerData", (player: PlayerMp) => {
+    let lobby = lobbies.find((lobby: Lobby) => {
+        return lobby.isParticipant(player);
+    });
+
+    let isReady = lobby.getParticipants().find((participant: Participant) => {
+        return participant.player.id === player.id;
+    }).isReady();
+
     player.call("receivePlayerData", [{
-        lobbyId: (() => {
-            let lobby = lobbies.find((lobby: Lobby) => {
-                return lobby.isParticipant(player);
-            });
-            return lobby ? lobby.getId() : null;
-        }).call(undefined)
+        lobbyId: lobby ? lobby.getId() : null,
+        isReady: isReady,
     }]);
 })
 

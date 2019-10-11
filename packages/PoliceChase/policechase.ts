@@ -31,6 +31,17 @@ export default class PoliceChase extends Lobby {
         super(mp, id, "Police Chase");
     }
 
+    isTargetStuck(): boolean {
+        if (this.target.vehicle) {
+            for (let chaser of this.chasers) {
+                if (chaser.vehicle && chaser.vehicle.position.subtract(this.target.vehicle.position).length() < notMovingDistanceLimit && this.target.vehicle.velocity.length() < notMovingSpeedLimit){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     run() {
         super.start();
 
@@ -94,16 +105,16 @@ export default class PoliceChase extends Lobby {
 
     onUpdate() {
         //Check if target suck
-        if (this.isTargetStuck()) {
-            if (this.ticketSinceTargetStuck % 40 == 0) {
-                this.messageAllParticipants("The target has to move within " + (notMovingTimeLimit - this.ticketSinceTargetStuck / 40) + " seconds!");
+        if (isTargetStuck()) {
+            if (ticketSinceTargetStuck % 40 == 0) {
+                messageAllParticipants("The target has to move within " + (notMovingTimeLimit - ticketSinceTargetStuck / 40) + " seconds!");
             }
 
-            this.ticketSinceTargetStuck += 1;
+            ticketSinceTargetStuck += 1;
         }
 
         else {
-            this.ticketSinceTargetStuck = 0;
+            ticketSinceTargetStuck = 0;
         }
     }
 
@@ -196,16 +207,5 @@ export default class PoliceChase extends Lobby {
         //Target won
         this.messageAllParticipants("The target has won: The police didn't manage to catch the target!");
         this.finish();
-    }
-
-    isTargetStuck(): boolean {
-        if (this.target.vehicle) {
-            for (let chaser of this.chasers) {
-                if (chaser.vehicle && chaser.vehicle.position.subtract(this.target.vehicle.position).length() < notMovingDistanceLimit && this.target.vehicle.velocity.length() < notMovingSpeedLimit){
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

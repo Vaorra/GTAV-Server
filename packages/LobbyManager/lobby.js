@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var participant_1 = __importDefault(require("./participant"));
+var timers_1 = require("timers");
 var Lobby = /** @class */ (function () {
     function Lobby(mp, id, gameMode) {
         var _this = this;
@@ -42,6 +43,7 @@ var Lobby = /** @class */ (function () {
                 return _this.fowardIfInLobby(_this.onPlayerQuit, args);
             }
         });
+        this.updateIntervall = timers_1.setInterval(this.onUpdate, 25); //Updates on 40Hz
     }
     Lobby.prototype.getId = function () {
         return this.id;
@@ -112,11 +114,12 @@ var Lobby = /** @class */ (function () {
         }
     };
     Lobby.prototype.end = function () {
+        clearInterval(this.updateIntervall);
         this.running = false;
-        this.participants = [];
         this.participants.forEach(function (participant) {
             participant.player.dimension = 0;
         });
+        this.participants = [];
     };
     Lobby.prototype.fowardIfInLobby = function (callback) {
         var args = [];
@@ -141,6 +144,8 @@ var Lobby = /** @class */ (function () {
     Lobby.prototype.onPlayerDeath = function (player, reason, killer) {
     };
     Lobby.prototype.onPlayerQuit = function (player, exitType, reason) {
+    };
+    Lobby.prototype.onUpdate = function () {
     };
     return Lobby;
 }());
