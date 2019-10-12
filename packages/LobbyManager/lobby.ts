@@ -21,8 +21,6 @@ export default class Lobby {
             "playerDeath": (...args: any[]) => this.fowardIfInLobby(this.onPlayerDeath, args),
             "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit, args)
         });
-
-        this.updateIntervall = setInterval(this.onUpdate, 25); //Updates on 40Hz
     }
 
     getId() {
@@ -75,6 +73,8 @@ export default class Lobby {
         this.participants.forEach((participant) => {
             participant.player.dimension = this.id;
         });
+
+        this.updateIntervall = setInterval(this.onUpdate.bind(this), 25); //Updates on 40Hz
     }
 
     join(player: PlayerMp) {
@@ -100,7 +100,7 @@ export default class Lobby {
     leave(player: PlayerMp) {
         for (let i = 0; i < this.participants.length; i++) {
             if (player.id === this.participants[i].player.id) {
-                this.participants.splice(i, 1);
+                delete this.participants[i];
             }
         }
     }

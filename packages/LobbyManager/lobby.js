@@ -43,7 +43,6 @@ var Lobby = /** @class */ (function () {
                 return _this.fowardIfInLobby(_this.onPlayerQuit, args);
             }
         });
-        this.updateIntervall = timers_1.setInterval(this.onUpdate, 25); //Updates on 40Hz
     }
     Lobby.prototype.getId = function () {
         return this.id;
@@ -88,6 +87,7 @@ var Lobby = /** @class */ (function () {
         this.participants.forEach(function (participant) {
             participant.player.dimension = _this.id;
         });
+        this.updateIntervall = timers_1.setInterval(this.onUpdate.bind(this), 25); //Updates on 40Hz
     };
     Lobby.prototype.join = function (player) {
         this.participants.push(new participant_1.default(player));
@@ -109,7 +109,7 @@ var Lobby = /** @class */ (function () {
     Lobby.prototype.leave = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
             if (player.id === this.participants[i].player.id) {
-                this.participants.splice(i, 1);
+                delete this.participants[i];
             }
         }
     };

@@ -1,0 +1,133 @@
+{
+  "id": 2,
+  "startingPhaseTime": 40,
+  "chasingPhaseTime": 600,
+  "playerInfo": [
+    {
+      "playerPosition": null,
+      "playerSkin": 653210662,
+      "weaponIds": [
+        -1834847097
+      ],
+      "vehiclePos": {
+        "x": 12.5062037,
+        "y": 256.0713,
+        "z": 109.078621
+      },
+      "vehicleRot": {
+        "x": 0.330315053,
+        "y": 0.683747,
+        "z": 253.749557
+      },
+      "vehicleColor1": 64,
+      "vehicleColor2": 32,
+      "vehicleModel": -1903012613,
+      "checkPointPos": null
+    },
+    {
+      "playerPosition": null,
+      "playerSkin": 988062523,
+      "weaponIds": [
+        911657153
+      ],
+      "vehiclePos": {
+        "x": 143.632431,
+        "y": 189.414124,
+        "z": 105.986115
+      },
+      "vehicleRot": {
+        "x": -3.35623121,
+        "y": -0.377220362,
+        "z": 250.807663
+      },
+      "vehicleColor1": 128,
+      "vehicleColor2": 128,
+      "vehicleModel": -1973172295,
+      "checkPointPos": {
+        "x": 156.86087,
+        "y": 206.64566,
+        "z": 105.5712
+      }
+    },
+    {
+      "playerPosition": {
+        "x": 313.1958,
+        "y": 190.187317,
+        "z": 103.977844
+      },
+      "playerSkin": 368603149,
+      "weaponIds": [
+        911657153
+      ],
+      "vehiclePos": {
+        "x": 299.772583,
+        "y": 173.7576,
+        "z": 103.58152
+      },
+      "vehicleRot": {
+        "x": -0.3847371,
+        "y": -0.990452349,
+        "z": 251.273926
+      },
+      "vehicleColor1": 0,
+      "vehicleColor2": 255,
+      "vehicleModel": 2046537925,
+      "checkPointPos": {
+        "x": 295.910553,
+        "y": 155.699875,
+        "z": 103.109245
+      }
+    },
+    {
+      "playerPosition": null,
+      "playerSkin": 1581098148,
+      "weaponIds": [
+        911657153
+      ],
+      "vehiclePos": {
+        "x": 530.522,
+        "y": -29.8694878,
+        "z": 70.38695
+      },
+      "vehicleRot": {
+        "x": 0.0311510619,
+        "y": 0.0766617656,
+        "z": 208.736664
+      },
+      "vehicleColor1": 0,
+      "vehicleColor2": 255,
+      "vehicleModel": 1912215274,
+      "checkPointPos": {
+        "x": 561.772,
+        "y": 60.1045532,
+        "z": 94.25021
+      }
+    },
+    {
+      "playerPosition": null,
+      "playerSkin": 2374966032,
+      "weaponIds": [
+        911657153,
+	453432689
+      ],
+      "vehiclePos": {
+        "x": 534.3815,
+        "y": -27.04832,
+        "z": 70.28118
+      },
+      "vehicleRot": {
+        "x": -0.009246968,
+        "y": 0.0317271948,
+        "z": 209.376816
+      },
+      "vehicleColor1": 128,
+      "vehicleColor2": 128,
+      "vehicleModel": -1205689942,
+      "checkPointPos": {
+        "x": 623.071,
+        "y": 42.7615051,
+        "z": 88.1584549
+      }
+    }
+  ]
+}

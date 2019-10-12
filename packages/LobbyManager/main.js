@@ -33,13 +33,20 @@ mp.events.add("requestPlayerData", function (player) {
     var lobby = lobbies.find(function (lobby) {
         return lobby.isParticipant(player);
     });
-    var isReady = lobby.getParticipants().find(function (participant) {
-        return participant.player.id === player.id;
-    }).isReady();
-    player.call("receivePlayerData", [{
-            lobbyId: lobby ? lobby.getId() : null,
-            isReady: isReady,
-        }]);
+    if (lobby) {
+        var isReady = lobby.getParticipants().find(function (participant) {
+            return participant.player.id === player.id;
+        }).isReady();
+        player.call("receivePlayerData", [{
+                lobbyId: lobby ? lobby.getId() : null,
+                isReady: isReady,
+            }]);
+    }
+    else {
+        player.call("receivePlayerData", [{
+                lobbyId: lobby ? lobby.getId() : null,
+            }]);
+    }
 });
 mp.events.add("startLobby", function (player, lobbyId) {
     lobbies.forEach(function (lobby) {

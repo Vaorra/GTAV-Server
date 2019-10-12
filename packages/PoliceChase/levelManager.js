@@ -13,10 +13,10 @@ var LevelManager = /** @class */ (function () {
         return this.getLevel(ids[randomIndex]);
     };
     LevelManager.getAllLevelIds = function () {
-        return fs_1.default.readdirSync("levels").map(function (fileName) { return fileName.substring(0, fileName.length - 5); });
+        return fs_1.default.readdirSync(process.cwd() + "/packages/PoliceChase/levels").map(function (fileName) { return fileName.substring(0, fileName.length - 5); });
     };
     LevelManager.getLevel = function (id) {
-        return JSON.parse(fs_1.default.readFileSync("levels/" + id + ".json").toString());
+        return JSON.parse(fs_1.default.readFileSync(process.cwd() + "/packages/PoliceChase/levels/" + id + ".json").toString());
     };
     return LevelManager;
 }());
