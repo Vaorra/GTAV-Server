@@ -5,7 +5,7 @@ import Participant from "./participant";
 let lobbies: Lobby[] = [];
 
 //Test Population
-lobbies.push(new PoliceChase(mp, 1));
+lobbies.push(new PoliceChase(1));
 
 setInterval(() => {
     lobbies.forEach((lobby) => {
@@ -36,14 +36,22 @@ mp.events.add("requestPlayerData", (player: PlayerMp) => {
         return lobby.isParticipant(player);
     });
 
-    let isReady = lobby.getParticipants().find((participant: Participant) => {
-        return participant.player.id === player.id;
-    }).isReady();
+    if (lobby) {
+        let isReady = lobby.getParticipants().find((participant: Participant) => {
+            return participant.player.id === player.id;
+        }).isReady();
 
-    player.call("receivePlayerData", [{
-        lobbyId: lobby ? lobby.getId() : null,
-        isReady: isReady,
-    }]);
+        player.call("receivePlayerData", [{
+            lobbyId: lobby ? lobby.getId() : null,
+            isReady: isReady,
+        }]);
+    }
+
+    else {
+        player.call("receivePlayerData", [{
+            lobbyId: lobby ? lobby.getId() : null,
+        }]);
+    }
 })
 
 mp.events.add("startLobby", (player: PlayerMp, lobbyId: number) => {

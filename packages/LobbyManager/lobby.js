@@ -2,48 +2,54 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var participant_1 = __importDefault(require("./participant"));
 var timers_1 = require("timers");
+var vstatic = __importStar(require("../AdminTools/static"));
 var Lobby = /** @class */ (function () {
-    function Lobby(mp, id, gameMode) {
+    function Lobby(id, gameMode) {
         var _this = this;
         this.running = false;
         this.participants = [];
-        this.mp = mp;
         this.id = id;
         this.gameMode = gameMode;
-        this.mp.events.add({
+        mp.events.add({
             "playerEnterCheckpoint": function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                return _this.fowardIfInLobby(_this.onPlayerEnterCheckpoint, args);
+                return _this.fowardIfInLobby(_this.onPlayerEnterCheckpoint.bind(_this), args);
             },
             "playerEnterColshape": function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                return _this.fowardIfInLobby(_this.onPlayerEnterColshape, args);
+                return _this.fowardIfInLobby(_this.onPlayerEnterColshape.bind(_this), args);
             },
             "playerDeath": function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                return _this.fowardIfInLobby(_this.onPlayerDeath, args);
+                return _this.fowardIfInLobby(_this.onPlayerDeath.bind(_this), args);
             },
             "playerQuit": function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                return _this.fowardIfInLobby(_this.onPlayerQuit, args);
+                return _this.fowardIfInLobby(_this.onPlayerQuit.bind(_this), args);
             }
         });
-        this.updateIntervall = timers_1.setInterval(this.onUpdate, 25); //Updates on 40Hz
     }
     Lobby.prototype.getId = function () {
         return this.id;
@@ -88,6 +94,7 @@ var Lobby = /** @class */ (function () {
         this.participants.forEach(function (participant) {
             participant.player.dimension = _this.id;
         });
+        this.updateIntervall = timers_1.setInterval(function () { return _this.onUpdate.bind(_this); }, 25); //Updates on 40Hz
     };
     Lobby.prototype.join = function (player) {
         this.participants.push(new participant_1.default(player));
@@ -109,25 +116,27 @@ var Lobby = /** @class */ (function () {
     Lobby.prototype.leave = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
             if (player.id === this.participants[i].player.id) {
-                this.participants.splice(i, 1);
+                delete this.participants[i];
             }
         }
     };
     Lobby.prototype.end = function () {
-        clearInterval(this.updateIntervall);
         this.running = false;
+        clearInterval(this.updateIntervall);
         this.participants.forEach(function (participant) {
-            participant.player.dimension = 0;
+            var player = participant.player;
+            player.removeAllWeapons();
+            //TODO Set player model
+            player.health = 100;
+            player.dimension = 0;
+            player.spawn(vstatic.spawnPosition);
         });
         this.participants = [];
+        this.updateIntervall = null;
     };
-    Lobby.prototype.fowardIfInLobby = function (callback) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
+    Lobby.prototype.fowardIfInLobby = function (callback, args) {
         if (args[0].dimension === this.id) {
-            callback(args);
+            callback.apply(void 0, args);
         }
     };
     Lobby.prototype.messageAllParticipants = function (message) {
@@ -136,10 +145,13 @@ var Lobby = /** @class */ (function () {
             participant.player.outputChatBox("[" + _this.gameMode + "] " + message);
         });
     };
-    //EVENTS
-    Lobby.prototype.onPlayerEnterCheckpoint = function (checkpoint, player) {
+    Lobby.prototype.messageToParticipant = function (player, message) {
+        player.outputChatBox("[" + this.gameMode + "] " + message);
     };
-    Lobby.prototype.onPlayerEnterColshape = function (colshape, player) {
+    //EVENTS
+    Lobby.prototype.onPlayerEnterCheckpoint = function (player, checkpoint) {
+    };
+    Lobby.prototype.onPlayerEnterColshape = function (player, colshape) {
     };
     Lobby.prototype.onPlayerDeath = function (player, reason, killer) {
     };

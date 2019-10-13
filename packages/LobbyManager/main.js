@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var policechase_1 = __importDefault(require("../PoliceChase/policechase"));
 var lobbies = [];
 //Test Population
-lobbies.push(new policechase_1.default(mp, 1));
+lobbies.push(new policechase_1.default(1));
 setInterval(function () {
     lobbies.forEach(function (lobby) {
         if (!lobby.isRunning() && lobby.isEveryoneReady()) {
@@ -33,13 +33,20 @@ mp.events.add("requestPlayerData", function (player) {
     var lobby = lobbies.find(function (lobby) {
         return lobby.isParticipant(player);
     });
-    var isReady = lobby.getParticipants().find(function (participant) {
-        return participant.player.id === player.id;
-    }).isReady();
-    player.call("receivePlayerData", [{
-            lobbyId: lobby ? lobby.getId() : null,
-            isReady: isReady,
-        }]);
+    if (lobby) {
+        var isReady = lobby.getParticipants().find(function (participant) {
+            return participant.player.id === player.id;
+        }).isReady();
+        player.call("receivePlayerData", [{
+                lobbyId: lobby ? lobby.getId() : null,
+                isReady: isReady,
+            }]);
+    }
+    else {
+        player.call("receivePlayerData", [{
+                lobbyId: lobby ? lobby.getId() : null,
+            }]);
+    }
 });
 mp.events.add("startLobby", function (player, lobbyId) {
     lobbies.forEach(function (lobby) {

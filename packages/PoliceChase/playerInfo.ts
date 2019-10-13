@@ -1,12 +1,12 @@
 export default interface PlayerInfo {
     playerPosition: Vector3Mp;
     playerSkin: number;
-    weaponIds: number[];
+    weaponNames: string[];
 
     vehiclePos: Vector3Mp;
     vehicleHeading: number;
     vehicleColor1: number;
     vehicleColor2: number;
-    vehicleModel: number;
+    vehicleModel: string;
     checkPointPos: Vector3Mp;
 }

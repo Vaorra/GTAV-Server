@@ -9,10 +9,10 @@ export default class LevelManager {
     }
 
     private static getAllLevelIds(): string[] {
-        return fs.readdirSync("levels").map(fileName => fileName.substring(0, fileName.length - 5));
+        return fs.readdirSync(process.cwd() + "/packages/PoliceChase/levels").map(fileName => fileName.substring(0, fileName.length - 5));
     }
 
     private static getLevel(id: string): LevelInfo {
-        return JSON.parse(fs.readFileSync("levels/" + id + ".json").toString());
+        return JSON.parse(fs.readFileSync(process.cwd() + "/packages/PoliceChase/levels/" + id + ".json").toString());
     }
 }

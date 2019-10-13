@@ -1,0 +1,122 @@
+{
+  "id": 1,
+  "startingPhaseTime": 60,
+  "chasingPhaseTime": 900,
+  "playerInfo": [
+    {
+      "playerPosition": null,
+      "playerSkin": 766375082,
+      "weaponNames": [
+        "weapon_knife"
+      ],
+      "vehiclePos": {
+        "x": -1396.51733,
+        "y": -817.254456,
+        "z": 19.0518284
+      },
+      "vehicleHeading": 135.684448,
+      "vehicleColor1": 0,
+      "vehicleColor2": 0,
+      "vehicleModel": "ingot",
+      "checkPointPos": null
+    },
+    {
+      "playerPosition": null,
+      "playerSkin": 1581098148,
+      "weaponNames": [
+        "weapon_stungun"
+      ],
+      "vehiclePos": {
+        "x": -2014.52747,
+        "y": -463.905548,
+        "z": 11.1948967
+      },
+      "vehicleHeading": 50.7319336,
+      "vehicleColor1": 0,
+      "vehicleColor2": 255,
+      "vehicleModel": "police",
+      "checkPointPos": {
+        "x": -1992.44226,
+        "y": -438.390717,
+        "z": 11.7268219
+      }
+    },
+    {
+      "playerPosition": {
+        "x": -2095.29272,
+        "y": -312.169342,
+        "z": 13.1686239
+      },
+      "playerSkin": 368603149,
+      "weaponNames": [
+        "weapon_stungun",
+        "weapon_pistol"
+      ],
+      "vehiclePos": {
+        "x": -2093.83667,
+        "y": -312.5852,
+        "z": 12.6311579
+      },
+      "vehicleHeading": 353.373627,
+      "vehicleColor1": 0,
+      "vehicleColor2": 255,
+      "vehicleModel": "police2",
+      "checkPointPos": {
+        "x": -2124.041,
+        "y": -357.069946,
+        "z": 12.1400623
+      }
+    },
+    {
+      "playerPosition": {
+        "x": -2967.63965,
+        "y": 98.2993851,
+        "z": 13.855422
+      },
+      "playerSkin": 2595446627,
+      "weaponNames": [
+        "weapon_stungun",
+        "weapon_revolver"
+      ],
+      "vehiclePos": {
+        "x": -2969.74268,
+        "y": 98.46984,
+        "z": 13.5292063
+      },
+      "vehicleHeading": 145.1149,
+      "vehicleColor1": 0,
+      "vehicleColor2": 255,
+      "vehicleModel": "sheriff2",
+      "checkPointPos": {
+        "x": -2825.57446,
+        "y": 55.09558,
+        "z": 13.6446352
+      }
+    },
+    {
+      "playerPosition": {
+        "x": -2962.05957,
+        "y": 106.323235,
+        "z": 13.8918371
+      },
+      "playerSkin": 3935738944,
+      "weaponNames": [
+        "weapon_stungun"
+      ],
+      "vehiclePos": {
+        "x": -2962.794,
+        "y": 108.074692,
+        "z": 13.5257311
+      },
+      "vehicleHeading": 144.777557,
+      "vehicleColor1": 255,
+      "vehicleColor2": 255,
+      "vehicleModel": "policet",
+      "checkPointPos": {
+        "x": -2921.50366,
+        "y": 82.91828,
+        "z": 12.6400375
+      }
+    }
+  ]
+}
