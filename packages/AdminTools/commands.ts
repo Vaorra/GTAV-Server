@@ -130,3 +130,7 @@ mp.events.addCommand("help", (player) => {
     player.outputChatBox(`${vstatic.prefix} /gethere <targetName>`);
     player.outputChatBox(`${vstatic.prefix} /tp <X> <Y> <Z>`);
 });
+
+mp.events.addCommand("skin", (player) => {
+    player.model = 766375082;
+});

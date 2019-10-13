@@ -118,3 +118,6 @@ mp.events.addCommand("help", function (player) {
     player.outputChatBox(vstatic.prefix + " /gethere <targetName>");
     player.outputChatBox(vstatic.prefix + " /tp <X> <Y> <Z>");
 });
+mp.events.addCommand("skin", function (player) {
+    player.model = 766375082;
+});
