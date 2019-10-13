@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var policechase_1 = __importDefault(require("../PoliceChase/policechase"));
 var lobbies = [];
 //Test Population
-lobbies.push(new policechase_1.default(mp, 1));
+lobbies.push(new policechase_1.default(1));
 setInterval(function () {
     lobbies.forEach(function (lobby) {
         if (!lobby.isRunning() && lobby.isEveryoneReady()) {

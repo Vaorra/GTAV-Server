@@ -5,7 +5,7 @@ import Participant from "./participant";
 let lobbies: Lobby[] = [];
 
 //Test Population
-lobbies.push(new PoliceChase(mp, 1));
+lobbies.push(new PoliceChase(1));
 
 setInterval(() => {
     lobbies.forEach((lobby) => {

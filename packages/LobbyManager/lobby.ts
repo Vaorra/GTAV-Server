@@ -1,8 +1,9 @@
 import Participant from "./participant";
 import { setInterval } from "timers";
+import * as vstatic from "../AdminTools/static";
+import { throws } from "assert";
 
 export default class Lobby {
-    protected mp: Mp;
     protected id: number;
     protected gameMode: string;
     protected running: boolean = false;
@@ -10,21 +11,20 @@ export default class Lobby {
 
     private updateIntervall: NodeJS.Timeout;
 
-    constructor(mp: Mp, id: number, gameMode: string) {
-        this.mp = mp;
+    constructor(id: number, gameMode: string) {
         this.id = id;
         this.gameMode = gameMode;
 
-        this.mp.events.add({
-            "playerEnterCheckpoint": (...args: any[]) => this.fowardIfInLobby(this.onPlayerEnterCheckpoint, args ),
-            "playerEnterColshape": (...args: any[]) => this.fowardIfInLobby(this.onPlayerEnterColshape, args),
-            "playerDeath": (...args: any[]) => this.fowardIfInLobby(this.onPlayerDeath, args),
-            "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit, args)
+        mp.events.add({
+            "playerEnterCheckpoint": (...args: any[]) => this.fowardIfInLobby(this.onPlayerEnterCheckpoint.bind(this), args),
+            "playerEnterColshape": (...args: any[]) => this.fowardIfInLobby(this.onPlayerEnterColshape.bind(this), args),
+            "playerDeath": (...args: any[]) => this.fowardIfInLobby(this.onPlayerDeath.bind(this), args),
+            "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit.bind(this), args)
         });
     }
 
     getId() {
-        return this.id;
+        return this.id; 
     }
 
     getGameMode() {
@@ -74,7 +74,7 @@ export default class Lobby {
             participant.player.dimension = this.id;
         });
 
-        this.updateIntervall = setInterval(this.onUpdate.bind(this), 25); //Updates on 40Hz
+        this.updateIntervall = setInterval(() => this.onUpdate.bind(this),  25); //Updates on 40Hz
     }
 
     join(player: PlayerMp) {
@@ -106,19 +106,28 @@ export default class Lobby {
     }
 
     end() {
-        clearInterval(this.updateIntervall);
         this.running = false;
 
+        clearInterval(this.updateIntervall);
+
         this.participants.forEach((participant) => {
-            participant.player.dimension = 0;
+            let player = participant.player;
+
+            player.removeAllWeapons();
+            //TODO Set player model
+            player.health = 100;
+            player.dimension = 0;
+            player.spawn(vstatic.spawnPosition);
         });
 
         this.participants = [];
+
+        this.updateIntervall = null;
     }
 
-    fowardIfInLobby(callback: Function, ...args: any) {
+    fowardIfInLobby(callback: Function, args: any) {
         if (args[0].dimension === this.id) {
-            callback(args);
+            callback(...args);
         }
     }
 
@@ -128,11 +137,15 @@ export default class Lobby {
         });
     }
 
-    //EVENTS
-    onPlayerEnterCheckpoint(checkpoint: CheckpointMp, player: PlayerMp) {
+    messageToParticipant(player: PlayerMp, message: string) {
+        player.outputChatBox("[" + this.gameMode + "] " + message);
     }
 
-    onPlayerEnterColshape(colshape: ColshapeMp, player: PlayerMp) {
+    //EVENTS
+    onPlayerEnterCheckpoint(player: PlayerMp, checkpoint: CheckpointMp) {
+    }
+
+    onPlayerEnterColshape(player: PlayerMp, colshape: ColshapeMp) {
     }
 
     onPlayerDeath(player: PlayerMp, reason: number, killer: PlayerMp) {
