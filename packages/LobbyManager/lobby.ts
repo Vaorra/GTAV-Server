@@ -8,12 +8,14 @@ export default class Lobby {
     protected gameMode: string;
     protected running: boolean = false;
     protected participants: Participant[] = [];
+    protected version: number;
 
     private updateIntervall: NodeJS.Timeout;
 
     constructor(id: number, gameMode: string) {
         this.id = id;
         this.gameMode = gameMode;
+        this.version = 1;
 
         mp.events.add({
             "playerEnterCheckpoint": (...args: any[]) => this.fowardIfInLobby(this.onPlayerEnterCheckpoint.bind(this), args),
@@ -21,6 +23,10 @@ export default class Lobby {
             "playerDeath": (...args: any[]) => this.fowardIfInLobby(this.onPlayerDeath.bind(this), args),
             "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit.bind(this), args)
         });
+    }
+
+    nextVersion(){
+        this.version += 1;
     }
 
     getId() {
@@ -41,6 +47,10 @@ export default class Lobby {
 
     getParticipants() {
         return this.participants;
+    }
+
+    getVersion(){
+        return this.version;
     }
 
     isParticipant(player: PlayerMp) {
@@ -75,10 +85,14 @@ export default class Lobby {
         });
 
         this.updateIntervall = setInterval(() => this.onUpdate.bind(this),  25); //Updates on 40Hz
+
+        this.nextVersion();
     }
 
     join(player: PlayerMp) {
         this.participants.push(new Participant(player));
+
+        this.nextVersion();
     }
 
     makeReady(player: PlayerMp) {
@@ -87,6 +101,8 @@ export default class Lobby {
                 this.participants[i].setReady();
             }
         }
+
+        this.nextVersion();
     }
 
     makeNotReady(player: PlayerMp) {
@@ -95,6 +111,8 @@ export default class Lobby {
                 this.participants[i].setNotReady();
             }
         }
+
+        this.nextVersion();
     }
 
     leave(player: PlayerMp) {
@@ -103,6 +121,8 @@ export default class Lobby {
                 delete this.participants[i];
             }
         }
+
+        this.nextVersion();
     }
 
     end() {
@@ -123,6 +143,8 @@ export default class Lobby {
         this.participants = [];
 
         this.updateIntervall = null;
+
+        this.nextVersion();
     }
 
     fowardIfInLobby(callback: Function, args: any) {
