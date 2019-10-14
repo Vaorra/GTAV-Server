@@ -77,6 +77,10 @@ export default class PoliceChase extends Lobby {
             mp.objects.forEachInDimension(this.getDimension(), (object) => {
                 object.destroy();
             });
+
+            mp.blips.forEachInDimension(this.getDimension(), (blip) => {
+                blip.destroy();
+            });
     
             this.level = null;
     
@@ -159,18 +163,18 @@ export default class PoliceChase extends Lobby {
     onPlayerDeath(player: PlayerMp, reason: number, killer: PlayerMp) {
         if (player.id === this.target.id) {
             if (killer) {
-                //Police won
-                this.messageAllParticipants("Police has won: The target has killed itself!");
-            }
-            else {
                 //Target won
                 this.messageAllParticipants("Target has won: It was killed by the police!");
+            }
+            else {
+                //Police won
+                this.messageAllParticipants("Police has won: The target has killed itself!");
             }
 
             this.finish();
         }
         else {
-            delete this.chasers[this.chasers.indexOf(player)];
+            this.chasers.splice(this.chasers.indexOf(player), 1);
 
             if (this.chasers.length > 0) {
                 //TODO Set player to spectate
@@ -306,7 +310,10 @@ export default class PoliceChase extends Lobby {
 
                     let distance = distanceV.length();
                     let speed = velocity.length();
-                    return distance < notMovingDistanceLimit && speed < notMovingSpeedLimit;
+
+                    if (distance < notMovingDistanceLimit && speed < notMovingSpeedLimit) {
+                        return true;
+                    }
                 }
             }
         }

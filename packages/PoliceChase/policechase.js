@@ -69,6 +69,9 @@ var PoliceChase = /** @class */ (function (_super) {
             mp.objects.forEachInDimension(_this.getDimension(), function (object) {
                 object.destroy();
             });
+            mp.blips.forEachInDimension(_this.getDimension(), function (blip) {
+                blip.destroy();
+            });
             _this.level = null;
             _this.target = null;
             _this.chasers = [];
@@ -134,17 +137,17 @@ var PoliceChase = /** @class */ (function (_super) {
     PoliceChase.prototype.onPlayerDeath = function (player, reason, killer) {
         if (player.id === this.target.id) {
             if (killer) {
-                //Police won
-                this.messageAllParticipants("Police has won: The target has killed itself!");
-            }
-            else {
                 //Target won
                 this.messageAllParticipants("Target has won: It was killed by the police!");
+            }
+            else {
+                //Police won
+                this.messageAllParticipants("Police has won: The target has killed itself!");
             }
             this.finish();
         }
         else {
-            delete this.chasers[this.chasers.indexOf(player)];
+            this.chasers.splice(this.chasers.indexOf(player), 1);
             if (this.chasers.length > 0) {
                 //TODO Set player to spectate
             }
@@ -255,7 +258,9 @@ var PoliceChase = /** @class */ (function (_super) {
                     var velocity = new mp.Vector3(this.target.vehicle.velocity.x, this.target.vehicle.velocity.x, this.target.vehicle.velocity.x);
                     var distance = distanceV.length();
                     var speed = velocity.length();
-                    return distance < notMovingDistanceLimit && speed < notMovingSpeedLimit;
+                    if (distance < notMovingDistanceLimit && speed < notMovingSpeedLimit) {
+                        return true;
+                    }
                 }
             }
         }

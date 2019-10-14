@@ -66,12 +66,8 @@ var Lobby = /** @class */ (function (_super) {
                 return _this.fowardIfInLobby(_this.onPlayerQuit.bind(_this), args);
             }
         });
-        _this.updateInterval = timers_1.setInterval(_this.onUpdate.bind(_this), 25); //Updates on 40Hz
         return _this;
     }
-    Lobby.prototype.nextVersion = function () {
-        this.version += 1;
-    };
     Lobby.prototype.getId = function () {
         return this.id;
     };
@@ -86,9 +82,6 @@ var Lobby = /** @class */ (function (_super) {
     };
     Lobby.prototype.getParticipants = function () {
         return this.participants;
-    };
-    Lobby.prototype.getVersion = function () {
-        return this.version;
     };
     Lobby.prototype.isParticipant = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
@@ -118,6 +111,7 @@ var Lobby = /** @class */ (function (_super) {
         this.participants.forEach(function (participant) {
             participant.player.dimension = _this.id;
         });
+        this.updateInterval = timers_1.setInterval(this.onUpdate.bind(this), 25); //Updates on 40Hz
         this.nextVersion();
     };
     Lobby.prototype.join = function (player) {
@@ -154,7 +148,7 @@ var Lobby = /** @class */ (function (_super) {
         this.participants.forEach(function (participant) {
             var player = participant.player;
             player.removeAllWeapons();
-            //TODO Set player model
+            player.model = 2841034142;
             player.health = 100;
             player.dimension = 0;
             player.spawn(vstatic.spawnPosition);

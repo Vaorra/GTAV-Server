@@ -25,8 +25,6 @@ export default class Lobby extends Showable {
             "playerDeath": (...args: any[]) => this.fowardIfInLobby(this.onPlayerDeath.bind(this), args),
             "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit.bind(this), args)
         });
-
-        this.updateInterval = setInterval(this.onUpdate.bind(this),  25); //Updates on 40Hz
     }
 
     getId() {
@@ -80,6 +78,8 @@ export default class Lobby extends Showable {
             participant.player.dimension = this.id;
         });
 
+        this.updateInterval = setInterval(this.onUpdate.bind(this),  25); //Updates on 40Hz
+        
         this.nextVersion();
     }
 
@@ -128,7 +128,7 @@ export default class Lobby extends Showable {
             let player = participant.player;
 
             player.removeAllWeapons();
-            //TODO Set player model
+            player.model = 2841034142;
             player.health = 100;
             player.dimension = 0;
             player.spawn(vstatic.spawnPosition);
