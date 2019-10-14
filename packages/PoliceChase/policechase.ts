@@ -25,6 +25,8 @@ export default class PoliceChase extends Lobby {
 
     private startingPhaseTimeout: NodeJS.Timeout;
     private chasingPhaseEndedTimeout: NodeJS.Timeout;
+
+    private isLevelSetup: boolean = false;
     
     constructor(id: number) {
         super(id, "Police Chase");
@@ -90,54 +92,60 @@ export default class PoliceChase extends Lobby {
     
             this.startingPhaseTimeout = null;
             this.chasingPhaseEndedTimeout = null;
+
+            this.isLevelSetup = false;
         }, 250);
     }
 
     onUpdate() {
-        //Check if target suck
-        if (this.isTargetStuck()) {
-            if (this.tickSinceTargetStuck % 40 == 0) {
-                this.messageAllParticipants("The target has to move within " + (notMovingTimeLimit - this.tickSinceTargetStuck / 40) + " seconds!");
+        if (this.isLevelSetup) {
+
+            //Check if target suck
+            if (this.isTargetStuck()) {
+                if (this.tickSinceTargetStuck % 40 == 0) {
+                    this.messageAllParticipants("The target has to move within " + (notMovingTimeLimit - this.tickSinceTargetStuck / 40) + " seconds!");
+                }
+
+                this.tickSinceTargetStuck += 1;
             }
 
-            this.tickSinceTargetStuck += 1;
-        }
-
-        else {
-            this.tickSinceTargetStuck = 0;
-        }
-
-        //Check if target stuck long enough
-        if (this.tickSinceTargetStuck / 40 > notMovingTimeLimit) {
-            //Police won
-            this.messageAllParticipants("Police has won: The police managed to stop the target vehicle!");
-            this.finish();
-        }
-
-        //Disable engines of police officers not allowed to drive
-        for (let chaser of this.chasers) {
-            if (chaser.vehicle) {
-                Object.keys(this.checkPoints).forEach((key) => {
-                    if (this.checkPoints[parseInt(key)].chaserIds.includes(chaser.id)) {
-                        chaser.vehicle.engine = false;
-                    }
-                    else {
-                        chaser.vehicle.engine = true;
-                    }
-                });
+            else {
+                this.tickSinceTargetStuck = 0;
             }
-        }
 
-        //Blip updating
-        for (let blip of this.blips) {
-            blip.destroy();
-        }
-        this.blips = [];
+            //Check if target stuck long enough
+            if (this.tickSinceTargetStuck / 40 > notMovingTimeLimit) {
+                //Police won
+                this.messageAllParticipants("Police has won: The police managed to stop the target vehicle!");
+                this.finish();
+            }
 
-        this.blips.push(mp.blips.new(126, this.target.position, { alpha: 255, color: 49, dimension: this.getDimension(), name: "Suspect", scale: 1 }));
+            //Disable engines of police officers not allowed to drive
+            chaserLoop:
+            for (let chaser of this.chasers) {
+                if (chaser.vehicle) {
+                    for (let key in this.checkPoints) {
+                        if (this.checkPoints[parseInt(key)].chaserIds.includes(chaser.id)) {
+                            chaser.vehicle.engine = false;
+                            continue chaserLoop;
+                        }
+                    }
 
-        for (let chaser of this.chasers) {
-            this.blips.push(mp.blips.new(60, chaser.position, { alpha: 255, color: 29, dimension: this.getDimension(), name: "Officer " + chaser.name, scale: 1 }));
+                    chaser.vehicle.engine = true;
+                }
+            }
+
+            //Blip updating
+            for (let blip of this.blips) {
+                blip.destroy();
+            }
+            this.blips = [];
+
+            this.blips.push(mp.blips.new(126, this.target.position, { alpha: 255, color: 49, dimension: this.getDimension(), name: "Suspect", scale: 1 }));
+
+            for (let chaser of this.chasers) {
+                this.blips.push(mp.blips.new(60, chaser.position, { alpha: 255, color: 29, dimension: this.getDimension(), name: "Officer " + chaser.name, scale: 1 }));
+            }
         }
     }
 
@@ -230,14 +238,6 @@ export default class PoliceChase extends Lobby {
         this.target.giveWeapon(mp.joaat(targetInfo.weaponNames), 1000);
         this.target.putIntoVehicle(targetVehicle, -1);
 
-        //Just for testing
-        /*mp.checkpoints.new(2, new mp.Vector3(-1992.44226, -438.390717, 11.7268219), 5, {
-            direction: new mp.Vector3(0, 0, 0),
-            color: [52, 58, 64, 255],
-            visible: true,
-            dimension: this.getDimension()
-        });*/
-
         //Equiping chasers
         for (let i = 0; i < this.chasers.length; i++) {
             let chaserInfo = this.level.playerInfo[i + 1];
@@ -272,10 +272,12 @@ export default class PoliceChase extends Lobby {
                 dimension: this.getDimension()
             });
 
-            this.checkPoints[checkPoint.id] = { checkPoint: checkPoint, chaserIds: [chaser.id]}
+            this.checkPoints[checkPoint.id] = { checkPoint: checkPoint, chaserIds: [chaser.id]};
         }
 
         this.startingPhaseTimeout = setTimeout(this.onStartingPhaseEnded, this.level.chasingPhaseTime * 1000);
+
+        this.isLevelSetup = true;
     }
 
     onStartingPhaseEnded() {

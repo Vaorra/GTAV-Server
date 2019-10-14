@@ -1,21 +1,23 @@
 import Participant from "./participant";
-import { setInterval } from "timers";
 import * as vstatic from "../AdminTools/static";
 import { throws } from "assert";
+import Showable from "./showable";
+import { setInterval } from "timers";
 
-export default class Lobby {
+export default class Lobby extends Showable {
     protected id: number;
     protected gameMode: string;
     protected running: boolean = false;
     protected participants: Participant[] = [];
-    protected version: number;
 
-    private updateIntervall: NodeJS.Timeout;
+    protected initialized: boolean = false;
+
+    private updateInterval: NodeJS.Timeout;
 
     constructor(id: number, gameMode: string) {
+        super();
         this.id = id;
         this.gameMode = gameMode;
-        this.version = 1;
 
         mp.events.add({
             "playerEnterCheckpoint": (...args: any[]) => this.fowardIfInLobby(this.onPlayerEnterCheckpoint.bind(this), args),
@@ -23,10 +25,8 @@ export default class Lobby {
             "playerDeath": (...args: any[]) => this.fowardIfInLobby(this.onPlayerDeath.bind(this), args),
             "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit.bind(this), args)
         });
-    }
 
-    nextVersion(){
-        this.version += 1;
+        this.updateInterval = setInterval(this.onUpdate.bind(this),  25); //Updates on 40Hz
     }
 
     getId() {
@@ -47,10 +47,6 @@ export default class Lobby {
 
     getParticipants() {
         return this.participants;
-    }
-
-    getVersion(){
-        return this.version;
     }
 
     isParticipant(player: PlayerMp) {
@@ -84,8 +80,6 @@ export default class Lobby {
             participant.player.dimension = this.id;
         });
 
-        this.updateIntervall = setInterval(() => this.onUpdate.bind(this),  25); //Updates on 40Hz
-
         this.nextVersion();
     }
 
@@ -118,7 +112,7 @@ export default class Lobby {
     leave(player: PlayerMp) {
         for (let i = 0; i < this.participants.length; i++) {
             if (player.id === this.participants[i].player.id) {
-                delete this.participants[i];
+                this.participants.splice(i, 1);
             }
         }
 
@@ -128,7 +122,7 @@ export default class Lobby {
     end() {
         this.running = false;
 
-        clearInterval(this.updateIntervall);
+        clearInterval(this.updateInterval);
 
         this.participants.forEach((participant) => {
             let player = participant.player;
@@ -142,7 +136,7 @@ export default class Lobby {
 
         this.participants = [];
 
-        this.updateIntervall = null;
+        this.updateInterval = null;
 
         this.nextVersion();
     }
@@ -161,6 +155,20 @@ export default class Lobby {
 
     messageToParticipant(player: PlayerMp, message: string) {
         player.outputChatBox("[" + this.gameMode + "] " + message);
+    }
+
+    getShowable() {
+        return {
+            id: this.id,
+            gameMode: this.gameMode,
+            running: this.running,
+            participants: this.participants.map((participant) => {
+                return {
+                    ready: participant.isReady(),
+                    name: participant.player.name,
+                }
+            })
+        };
     }
 
     //EVENTS

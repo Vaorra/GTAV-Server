@@ -1,4 +1,17 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -11,15 +24,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var participant_1 = __importDefault(require("./participant"));
-var timers_1 = require("timers");
 var vstatic = __importStar(require("../AdminTools/static"));
-var Lobby = /** @class */ (function () {
+var showable_1 = __importDefault(require("./showable"));
+var timers_1 = require("timers");
+var Lobby = /** @class */ (function (_super) {
+    __extends(Lobby, _super);
     function Lobby(id, gameMode) {
-        var _this = this;
-        this.running = false;
-        this.participants = [];
-        this.id = id;
-        this.gameMode = gameMode;
+        var _this = _super.call(this) || this;
+        _this.running = false;
+        _this.participants = [];
+        _this.initialized = false;
+        _this.id = id;
+        _this.gameMode = gameMode;
         mp.events.add({
             "playerEnterCheckpoint": function () {
                 var args = [];
@@ -50,6 +66,8 @@ var Lobby = /** @class */ (function () {
                 return _this.fowardIfInLobby(_this.onPlayerQuit.bind(_this), args);
             }
         });
+        _this.updateInterval = timers_1.setInterval(_this.onUpdate.bind(_this), 25); //Updates on 40Hz
+        return _this;
     }
     Lobby.prototype.getId = function () {
         return this.id;
@@ -94,10 +112,11 @@ var Lobby = /** @class */ (function () {
         this.participants.forEach(function (participant) {
             participant.player.dimension = _this.id;
         });
-        this.updateIntervall = timers_1.setInterval(function () { return _this.onUpdate.bind(_this); }, 25); //Updates on 40Hz
+        this.nextVersion();
     };
     Lobby.prototype.join = function (player) {
         this.participants.push(new participant_1.default(player));
+        this.nextVersion();
     };
     Lobby.prototype.makeReady = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
@@ -105,6 +124,7 @@ var Lobby = /** @class */ (function () {
                 this.participants[i].setReady();
             }
         }
+        this.nextVersion();
     };
     Lobby.prototype.makeNotReady = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
@@ -112,17 +132,19 @@ var Lobby = /** @class */ (function () {
                 this.participants[i].setNotReady();
             }
         }
+        this.nextVersion();
     };
     Lobby.prototype.leave = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
             if (player.id === this.participants[i].player.id) {
-                delete this.participants[i];
+                this.participants.splice(i, 1);
             }
         }
+        this.nextVersion();
     };
     Lobby.prototype.end = function () {
         this.running = false;
-        clearInterval(this.updateIntervall);
+        clearInterval(this.updateInterval);
         this.participants.forEach(function (participant) {
             var player = participant.player;
             player.removeAllWeapons();
@@ -132,7 +154,8 @@ var Lobby = /** @class */ (function () {
             player.spawn(vstatic.spawnPosition);
         });
         this.participants = [];
-        this.updateIntervall = null;
+        this.updateInterval = null;
+        this.nextVersion();
     };
     Lobby.prototype.fowardIfInLobby = function (callback, args) {
         if (args[0].dimension === this.id) {
@@ -148,6 +171,19 @@ var Lobby = /** @class */ (function () {
     Lobby.prototype.messageToParticipant = function (player, message) {
         player.outputChatBox("[" + this.gameMode + "] " + message);
     };
+    Lobby.prototype.getShowable = function () {
+        return {
+            id: this.id,
+            gameMode: this.gameMode,
+            running: this.running,
+            participants: this.participants.map(function (participant) {
+                return {
+                    ready: participant.isReady(),
+                    name: participant.player.name,
+                };
+            })
+        };
+    };
     //EVENTS
     Lobby.prototype.onPlayerEnterCheckpoint = function (player, checkpoint) {
     };
@@ -160,5 +196,5 @@ var Lobby = /** @class */ (function () {
     Lobby.prototype.onUpdate = function () {
     };
     return Lobby;
-}());
+}(showable_1.default));
 exports.default = Lobby;

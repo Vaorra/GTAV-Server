@@ -15,20 +15,19 @@ setInterval(() => {
     });
 }, 1000);
 
-mp.events.add("requestLobbyData", (player: PlayerMp) => {
-    player.call("receiveLobbyData", [lobbies.map(lobby => {
+mp.events.add("requestLobbyVersions", (player: PlayerMp) => {
+    player.call("receiveLobbyVersions", [lobbies.map((lobby) => {
         return {
-            id: lobby.getId(),
-            gameMode: lobby.getGameMode(),
-            running: lobby.isRunning(),
-            participants: lobby.getParticipants().map(participant => {
-                return {
-                    name: participant.player.name,
-                    ready: participant.isReady()
-                };
-            })
+            lobbyId: lobby.getId(),
+            lobbyVersion: lobby.getVersion()
         };
     })]);
+});
+
+mp.events.add("requestLobbyData", (player: PlayerMp, lobbyId: number) => {
+    player.call("receiveLobbyData", [lobbies.find((lobby) => {
+        return lobby.getId() === lobbyId;
+    }).getShowable()]);
 });
 
 mp.events.add("requestPlayerData", (player: PlayerMp) => {

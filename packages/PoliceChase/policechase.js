@@ -31,6 +31,7 @@ var PoliceChase = /** @class */ (function (_super) {
         _this.vehicles = {};
         _this.checkPoints = {};
         _this.tickSinceTargetStuck = 0; //1 second = 40 ticks
+        _this.isLevelSetup = false;
         return _this;
     }
     PoliceChase.prototype.run = function () {
@@ -77,54 +78,51 @@ var PoliceChase = /** @class */ (function (_super) {
             _this.tickSinceTargetStuck = 0;
             _this.startingPhaseTimeout = null;
             _this.chasingPhaseEndedTimeout = null;
+            _this.isLevelSetup = false;
         }, 250);
     };
     PoliceChase.prototype.onUpdate = function () {
-        var _this = this;
-        //Check if target suck
-        if (this.isTargetStuck()) {
-            if (this.tickSinceTargetStuck % 40 == 0) {
-                this.messageAllParticipants("The target has to move within " + (notMovingTimeLimit - this.tickSinceTargetStuck / 40) + " seconds!");
+        if (this.isLevelSetup) {
+            //Check if target suck
+            if (this.isTargetStuck()) {
+                if (this.tickSinceTargetStuck % 40 == 0) {
+                    this.messageAllParticipants("The target has to move within " + (notMovingTimeLimit - this.tickSinceTargetStuck / 40) + " seconds!");
+                }
+                this.tickSinceTargetStuck += 1;
             }
-            this.tickSinceTargetStuck += 1;
-        }
-        else {
-            this.tickSinceTargetStuck = 0;
-        }
-        //Check if target stuck long enough
-        if (this.tickSinceTargetStuck / 40 > notMovingTimeLimit) {
-            //Police won
-            this.messageAllParticipants("Police has won: The police managed to stop the target vehicle!");
-            this.finish();
-        }
-        var _loop_1 = function (chaser) {
-            if (chaser.vehicle) {
-                Object.keys(this_1.checkPoints).forEach(function (key) {
-                    if (_this.checkPoints[parseInt(key)].chaserIds.includes(chaser.id)) {
-                        chaser.vehicle.engine = false;
-                    }
-                    else {
-                        chaser.vehicle.engine = true;
-                    }
-                });
+            else {
+                this.tickSinceTargetStuck = 0;
             }
-        };
-        var this_1 = this;
-        //Disable engines of police officers not allowed to drive
-        for (var _i = 0, _a = this.chasers; _i < _a.length; _i++) {
-            var chaser = _a[_i];
-            _loop_1(chaser);
-        }
-        //Blip updating
-        for (var _b = 0, _c = this.blips; _b < _c.length; _b++) {
-            var blip = _c[_b];
-            blip.destroy();
-        }
-        this.blips = [];
-        this.blips.push(mp.blips.new(126, this.target.position, { alpha: 255, color: 49, dimension: this.getDimension(), name: "Suspect", scale: 1 }));
-        for (var _d = 0, _e = this.chasers; _d < _e.length; _d++) {
-            var chaser = _e[_d];
-            this.blips.push(mp.blips.new(60, chaser.position, { alpha: 255, color: 29, dimension: this.getDimension(), name: "Officer " + chaser.name, scale: 1 }));
+            //Check if target stuck long enough
+            if (this.tickSinceTargetStuck / 40 > notMovingTimeLimit) {
+                //Police won
+                this.messageAllParticipants("Police has won: The police managed to stop the target vehicle!");
+                this.finish();
+            }
+            //Disable engines of police officers not allowed to drive
+            chaserLoop: for (var _i = 0, _a = this.chasers; _i < _a.length; _i++) {
+                var chaser = _a[_i];
+                if (chaser.vehicle) {
+                    for (var key in this.checkPoints) {
+                        if (this.checkPoints[parseInt(key)].chaserIds.includes(chaser.id)) {
+                            chaser.vehicle.engine = false;
+                            continue chaserLoop;
+                        }
+                    }
+                    chaser.vehicle.engine = true;
+                }
+            }
+            //Blip updating
+            for (var _b = 0, _c = this.blips; _b < _c.length; _b++) {
+                var blip = _c[_b];
+                blip.destroy();
+            }
+            this.blips = [];
+            this.blips.push(mp.blips.new(126, this.target.position, { alpha: 255, color: 49, dimension: this.getDimension(), name: "Suspect", scale: 1 }));
+            for (var _d = 0, _e = this.chasers; _d < _e.length; _d++) {
+                var chaser = _e[_d];
+                this.blips.push(mp.blips.new(60, chaser.position, { alpha: 255, color: 29, dimension: this.getDimension(), name: "Officer " + chaser.name, scale: 1 }));
+            }
         }
     };
     PoliceChase.prototype.onPlayerEnterCheckpoint = function (player, checkPoint) {
@@ -200,13 +198,6 @@ var PoliceChase = /** @class */ (function (_super) {
         this.target.model = targetInfo.playerSkin;
         this.target.giveWeapon(mp.joaat(targetInfo.weaponNames), 1000);
         this.target.putIntoVehicle(targetVehicle, -1);
-        //Just for testing
-        /*mp.checkpoints.new(2, new mp.Vector3(-1992.44226, -438.390717, 11.7268219), 5, {
-            direction: new mp.Vector3(0, 0, 0),
-            color: [52, 58, 64, 255],
-            visible: true,
-            dimension: this.getDimension()
-        });*/
         //Equiping chasers
         for (var i = 0; i < this.chasers.length; i++) {
             var chaserInfo = this.level.playerInfo[i + 1];
@@ -238,6 +229,7 @@ var PoliceChase = /** @class */ (function (_super) {
             this.checkPoints[checkPoint.id] = { checkPoint: checkPoint, chaserIds: [chaser.id] };
         }
         this.startingPhaseTimeout = timers_1.setTimeout(this.onStartingPhaseEnded, this.level.chasingPhaseTime * 1000);
+        this.isLevelSetup = true;
     };
     PoliceChase.prototype.onStartingPhaseEnded = function () {
         if (Object.keys(this.checkPoints).length === 0) {

@@ -14,20 +14,18 @@ setInterval(function () {
         }
     });
 }, 1000);
-mp.events.add("requestLobbyData", function (player) {
-    player.call("receiveLobbyData", [lobbies.map(function (lobby) {
+mp.events.add("requestLobbyVersions", function (player) {
+    player.call("receiveLobbyVersions", [lobbies.map(function (lobby) {
             return {
-                id: lobby.getId(),
-                gameMode: lobby.getGameMode(),
-                running: lobby.isRunning(),
-                participants: lobby.getParticipants().map(function (participant) {
-                    return {
-                        name: participant.player.name,
-                        ready: participant.isReady()
-                    };
-                })
+                lobbyId: lobby.getId(),
+                lobbyVersion: lobby.getVersion()
             };
         })]);
+});
+mp.events.add("requestLobbyData", function (player, lobbyId) {
+    player.call("receiveLobbyData", [lobbies.find(function (lobby) {
+            return lobby.getId() === lobbyId;
+        }).getShowable()]);
 });
 mp.events.add("requestPlayerData", function (player) {
     var lobby = lobbies.find(function (lobby) {
