@@ -20,6 +20,7 @@ var Lobby = /** @class */ (function () {
         this.participants = [];
         this.id = id;
         this.gameMode = gameMode;
+        this.version = 1;
         mp.events.add({
             "playerEnterCheckpoint": function () {
                 var args = [];
@@ -51,6 +52,9 @@ var Lobby = /** @class */ (function () {
             }
         });
     }
+    Lobby.prototype.nextVersion = function () {
+        this.version += 1;
+    };
     Lobby.prototype.getId = function () {
         return this.id;
     };
@@ -65,6 +69,9 @@ var Lobby = /** @class */ (function () {
     };
     Lobby.prototype.getParticipants = function () {
         return this.participants;
+    };
+    Lobby.prototype.getVersion = function () {
+        return this.version;
     };
     Lobby.prototype.isParticipant = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
@@ -95,9 +102,11 @@ var Lobby = /** @class */ (function () {
             participant.player.dimension = _this.id;
         });
         this.updateIntervall = timers_1.setInterval(function () { return _this.onUpdate.bind(_this); }, 25); //Updates on 40Hz
+        this.nextVersion();
     };
     Lobby.prototype.join = function (player) {
         this.participants.push(new participant_1.default(player));
+        this.nextVersion();
     };
     Lobby.prototype.makeReady = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
@@ -105,6 +114,7 @@ var Lobby = /** @class */ (function () {
                 this.participants[i].setReady();
             }
         }
+        this.nextVersion();
     };
     Lobby.prototype.makeNotReady = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
@@ -112,6 +122,7 @@ var Lobby = /** @class */ (function () {
                 this.participants[i].setNotReady();
             }
         }
+        this.nextVersion();
     };
     Lobby.prototype.leave = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
@@ -119,6 +130,7 @@ var Lobby = /** @class */ (function () {
                 delete this.participants[i];
             }
         }
+        this.nextVersion();
     };
     Lobby.prototype.end = function () {
         this.running = false;
@@ -133,6 +145,7 @@ var Lobby = /** @class */ (function () {
         });
         this.participants = [];
         this.updateIntervall = null;
+        this.nextVersion();
     };
     Lobby.prototype.fowardIfInLobby = function (callback, args) {
         if (args[0].dimension === this.id) {
