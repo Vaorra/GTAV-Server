@@ -69,6 +69,9 @@ var Lobby = /** @class */ (function (_super) {
         _this.updateInterval = timers_1.setInterval(_this.onUpdate.bind(_this), 25); //Updates on 40Hz
         return _this;
     }
+    Lobby.prototype.nextVersion = function () {
+        this.version += 1;
+    };
     Lobby.prototype.getId = function () {
         return this.id;
     };
@@ -83,6 +86,9 @@ var Lobby = /** @class */ (function (_super) {
     };
     Lobby.prototype.getParticipants = function () {
         return this.participants;
+    };
+    Lobby.prototype.getVersion = function () {
+        return this.version;
     };
     Lobby.prototype.isParticipant = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
