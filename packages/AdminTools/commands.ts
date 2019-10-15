@@ -1,7 +1,7 @@
 import * as vstatic from "./static";
 import users from "./users.json";
 
-mp.events.addCommand("spawnveh", (player, vehicleName, dimension) => {
+mp.events.addCommand("spawnveh", (player, fullText, vehicleName, dimension) => {
 
     for (const user of users){
         if((player.name.indexOf(user) !== -1)){
@@ -25,7 +25,7 @@ mp.events.addCommand("spawnveh", (player, vehicleName, dimension) => {
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
 
-mp.events.addCommand("spawnwep", (player, weaponName, ammo) => {
+mp.events.addCommand("spawnwep", (player, fullText, weaponName, ammo) => {
 
     for (const user of users){
         if((player.name.indexOf(user) !== -1)){
@@ -44,23 +44,23 @@ mp.events.addCommand("spawnwep", (player, weaponName, ammo) => {
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
 
-mp.events.addCommand("getpos", (player) => {
+mp.events.addCommand("getpos", (player, fullText) => {
 
     player.outputChatBox(vstatic.prefix + "pos: X: " + player.position.x +" Y: " + player.position.y + " Z: " + player.position.z);
 
 });
 
-mp.events.addCommand("getdim", (player) => {
+mp.events.addCommand("getdim", (player, fullText) => {
 
     player.outputChatBox(vstatic.prefix + "current dimension: " + player.dimension);
 
 });
 
-mp.events.addCommand("kill", (player) => {
+mp.events.addCommand("kill", (player, fullText) => {
     player.health = 0;
 });
 
-mp.events.addCommand("goto", (player, targetName) => {
+mp.events.addCommand("goto", (player, fullText, targetName) => {
 
     for (const user of users){
         if((player.name.indexOf(user) !== -1)){
@@ -80,7 +80,7 @@ mp.events.addCommand("goto", (player, targetName) => {
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
 
-mp.events.addCommand("gethere", (player, targetName) => {
+mp.events.addCommand("gethere", (player, fullText, targetName) => {
     for (const user of users){
         if((player.name.indexOf(user) !== -1)){
             if(targetName === undefined) return player.outputChatBox(vstatic.prefix + "syntax: /gethere <targetName>");
@@ -99,7 +99,7 @@ mp.events.addCommand("gethere", (player, targetName) => {
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
 
-mp.events.addCommand("tp", (player, x:any, y:any, z:any) => {
+mp.events.addCommand("tp", (player, fullText, x:any, y:any, z:any) => {
     for (const user of users){
         if((player.name.indexOf(user) !== -1)){
             if(x === undefined) return player.outputChatBox(`${vstatic.prefix} syntax: /tp <X> <Y> <Z>`);
@@ -119,7 +119,7 @@ mp.events.addCommand("tp", (player, x:any, y:any, z:any) => {
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
 
-mp.events.addCommand("help", (player) => {
+mp.events.addCommand("help", (player, fullText) => {
     player.outputChatBox(`${vstatic.prefix} /help`);
     player.outputChatBox(`${vstatic.prefix} /spawnveh <VehicleName> [Dimension]`);
     player.outputChatBox(`${vstatic.prefix} /spawnwep <WeaponName> [Ammo]`);
@@ -131,6 +131,6 @@ mp.events.addCommand("help", (player) => {
     player.outputChatBox(`${vstatic.prefix} /tp <X> <Y> <Z>`);
 });
 
-mp.events.addCommand("skin", (player) => {
+mp.events.addCommand("skin", (player, fullText) => {
     player.model = 766375082;
 });
