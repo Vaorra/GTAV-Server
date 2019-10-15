@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var vstatic = __importStar(require("./static"));
 var users_json_1 = __importDefault(require("./users.json"));
-mp.events.addCommand("spawnveh", function (player, vehicleName, dimension) {
+mp.events.addCommand("spawnveh", function (player, fullText, vehicleName, dimension) {
     for (var _i = 0, users_1 = users_json_1.default; _i < users_1.length; _i++) {
         var user = users_1[_i];
         if ((player.name.indexOf(user) !== -1)) {
@@ -31,7 +31,7 @@ mp.events.addCommand("spawnveh", function (player, vehicleName, dimension) {
     }
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
-mp.events.addCommand("spawnwep", function (player, weaponName, ammo) {
+mp.events.addCommand("spawnwep", function (player, fullText, weaponName, ammo) {
     for (var _i = 0, users_2 = users_json_1.default; _i < users_2.length; _i++) {
         var user = users_2[_i];
         if ((player.name.indexOf(user) !== -1)) {
@@ -46,16 +46,16 @@ mp.events.addCommand("spawnwep", function (player, weaponName, ammo) {
     }
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
-mp.events.addCommand("getpos", function (player) {
+mp.events.addCommand("getpos", function (player, fullText) {
     player.outputChatBox(vstatic.prefix + "pos: X: " + player.position.x + " Y: " + player.position.y + " Z: " + player.position.z);
 });
-mp.events.addCommand("getdim", function (player) {
+mp.events.addCommand("getdim", function (player, fullText) {
     player.outputChatBox(vstatic.prefix + "current dimension: " + player.dimension);
 });
-mp.events.addCommand("kill", function (player) {
+mp.events.addCommand("kill", function (player, fullText) {
     player.health = 0;
 });
-mp.events.addCommand("goto", function (player, targetName) {
+mp.events.addCommand("goto", function (player, fullText, targetName) {
     for (var _i = 0, users_3 = users_json_1.default; _i < users_3.length; _i++) {
         var user = users_3[_i];
         if ((player.name.indexOf(user) !== -1)) {
@@ -72,7 +72,7 @@ mp.events.addCommand("goto", function (player, targetName) {
     }
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
-mp.events.addCommand("gethere", function (player, targetName) {
+mp.events.addCommand("gethere", function (player, fullText, targetName) {
     for (var _i = 0, users_4 = users_json_1.default; _i < users_4.length; _i++) {
         var user = users_4[_i];
         if ((player.name.indexOf(user) !== -1)) {
@@ -89,7 +89,7 @@ mp.events.addCommand("gethere", function (player, targetName) {
     }
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
-mp.events.addCommand("tp", function (player, x, y, z) {
+mp.events.addCommand("tp", function (player, fullText, x, y, z) {
     for (var _i = 0, users_5 = users_json_1.default; _i < users_5.length; _i++) {
         var user = users_5[_i];
         if ((player.name.indexOf(user) !== -1)) {
@@ -107,7 +107,7 @@ mp.events.addCommand("tp", function (player, x, y, z) {
     }
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
-mp.events.addCommand("help", function (player) {
+mp.events.addCommand("help", function (player, fullText) {
     player.outputChatBox(vstatic.prefix + " /help");
     player.outputChatBox(vstatic.prefix + " /spawnveh <VehicleName> [Dimension]");
     player.outputChatBox(vstatic.prefix + " /spawnwep <WeaponName> [Ammo]");
@@ -118,6 +118,13 @@ mp.events.addCommand("help", function (player) {
     player.outputChatBox(vstatic.prefix + " /gethere <targetName>");
     player.outputChatBox(vstatic.prefix + " /tp <X> <Y> <Z>");
 });
-mp.events.addCommand("skin", function (player) {
+mp.events.addCommand("skin", function (player, fullText) {
     player.model = 766375082;
+});
+mp.events.addCommand("spec", function (player, fullText, targetName) {
+    mp.players.forEach(function (target) {
+        if (target.name.indexOf(targetName) !== -1) {
+            mp.events.call("spectetPlayer", target);
+        }
+    });
 });
