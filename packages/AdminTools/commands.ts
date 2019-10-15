@@ -134,3 +134,11 @@ mp.events.addCommand("help", (player, fullText) => {
 mp.events.addCommand("skin", (player, fullText) => {
     player.model = 766375082;
 });
+
+mp.events.addCommand("spec", (player, fullText, targetName) => {
+    mp.players.forEach((target) => {
+        if(target.name.indexOf(targetName) !== -1){
+            mp.events.call("spectetPlayer", target)
+        }
+    });
+});
