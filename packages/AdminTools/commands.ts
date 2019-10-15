@@ -138,8 +138,8 @@ mp.events.addCommand("skin", (player, fullText) => {
 mp.events.addCommand("spec", (player, fullText, targetName) => {
     mp.players.forEach((target) => {
         if(target.name.indexOf(targetName) !== -1){
-            player.call("spectatePlayer", target)
-            player.outputChatBox('event called')
+            player.call("spectatePlayer", [target]);
+            player.outputChatBox("Spec: " + target.name);
         }
     });
 });
