@@ -124,7 +124,8 @@ mp.events.addCommand("skin", function (player, fullText) {
 mp.events.addCommand("spec", function (player, fullText, targetName) {
     mp.players.forEach(function (target) {
         if (target.name.indexOf(targetName) !== -1) {
-            mp.events.call("spectetPlayer", target);
+            player.call("spectetPlayer", target);
+            player.outputChatBox('event called');
         }
     });
 });
