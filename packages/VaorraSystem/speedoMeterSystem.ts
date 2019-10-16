@@ -11,7 +11,7 @@ mp.events.add("playerEnterVehicle", playerEnterVehicleHandler);
 
 
  function playerExitVehicleHandler(player:any, vehicle:any) {
-    player.outputChatBox(`${player.name} when out from vehicle with ID: ${vehicle.id}`);
+    player.outputChatBox(`${player.name} went out from vehicle with ID: ${vehicle.id}`);
     player.call("playerLeaveDriverSeat", []);
 }
 
