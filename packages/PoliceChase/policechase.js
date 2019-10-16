@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var lobby_1 = __importDefault(require("../LobbyManager/lobby"));
+var lobby_1 = __importDefault(require("../LobbySystem/lobby"));
 var levelManager_1 = __importDefault(require("./levelManager"));
 var timers_1 = require("timers");
 var notMovingDistanceLimit = 7;
@@ -31,6 +31,8 @@ var PoliceChase = /** @class */ (function (_super) {
         _this.vehicles = {};
         _this.checkPoints = {};
         _this.tickSinceTargetStuck = 0; //1 second = 40 ticks
+        _this.startingPhaseEnded = false;
+        _this.chasingPhaseEnded = false;
         _this.isLevelSetup = false;
         return _this;
     }
@@ -56,8 +58,6 @@ var PoliceChase = /** @class */ (function (_super) {
     PoliceChase.prototype.finish = function () {
         var _this = this;
         _super.prototype.end.call(this);
-        clearTimeout(this.startingPhaseTimeout);
-        clearTimeout(this.chasingPhaseEndedTimeout);
         //Ensure that hooks are done
         timers_1.setTimeout(function () {
             mp.vehicles.forEachInDimension(_this.getDimension(), function (vehicle) {
@@ -79,12 +79,20 @@ var PoliceChase = /** @class */ (function (_super) {
             _this.vehicles = {};
             _this.checkPoints = {};
             _this.tickSinceTargetStuck = 0;
-            _this.startingPhaseTimeout = null;
-            _this.chasingPhaseEndedTimeout = null;
+            _this.startingPhaseEnded = false;
+            _this.chasingPhaseEnded = false;
             _this.isLevelSetup = false;
         }, 250);
     };
     PoliceChase.prototype.onUpdate = function () {
+        if (!this.startingPhaseEnded && this.getTime() >= this.level.startingPhaseTime) {
+            this.startingPhaseEnded = true;
+            this.onStartingPhaseEnded();
+        }
+        else if (!this.chasingPhaseEnded && this.getTime() >= this.level.chasingPhaseTime + this.level.startingPhaseTime) {
+            this.chasingPhaseEnded = true;
+            this.onChasingPhaseEnded();
+        }
         if (this.isLevelSetup) {
             //Check if target suck
             if (this.isTargetStuck()) {
@@ -108,11 +116,15 @@ var PoliceChase = /** @class */ (function (_super) {
                 if (chaser.vehicle) {
                     for (var key in this.checkPoints) {
                         if (this.checkPoints[parseInt(key)].chaserIds.includes(chaser.id)) {
-                            chaser.vehicle.engine = false;
+                            if (chaser.vehicle.engine) {
+                                chaser.vehicle.engine = false;
+                            }
                             continue chaserLoop;
                         }
                     }
-                    chaser.vehicle.engine = true;
+                    if (!chaser.vehicle.engine) {
+                        chaser.vehicle.engine = true;
+                    }
                 }
             }
             //Blip updating
@@ -231,14 +243,10 @@ var PoliceChase = /** @class */ (function (_super) {
             });
             this.checkPoints[checkPoint.id] = { checkPoint: checkPoint, chaserIds: [chaser.id] };
         }
-        this.startingPhaseTimeout = timers_1.setTimeout(this.onStartingPhaseEnded, this.level.chasingPhaseTime * 1000);
         this.isLevelSetup = true;
     };
     PoliceChase.prototype.onStartingPhaseEnded = function () {
-        if (Object.keys(this.checkPoints).length === 0) {
-            this.chasingPhaseEndedTimeout = timers_1.setTimeout(this.onChasingPhaseEnded, this.level.chasingPhaseTime * 1000);
-        }
-        else {
+        if (Object.keys(this.checkPoints).length > 0) {
             //Police won
             this.messageAllParticipants("The police has won: The target didn't manage to reach all the checkpoints in the given time!");
             this.finish();

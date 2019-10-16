@@ -33,7 +33,7 @@ var Lobby = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this.running = false;
         _this.participants = [];
-        _this.initialized = false;
+        _this.tick = 0; //40 ticks = 1 second || 1 tick = 25ms = 0.025 seconds
         _this.id = id;
         _this.gameMode = gameMode;
         mp.events.add({
@@ -83,6 +83,9 @@ var Lobby = /** @class */ (function (_super) {
     Lobby.prototype.getParticipants = function () {
         return this.participants;
     };
+    Lobby.prototype.getTime = function () {
+        return this.tick / Lobby.tickRate;
+    };
     Lobby.prototype.isParticipant = function (player) {
         for (var i = 0; i < this.participants.length; i++) {
             if (this.participants[i].player.id === player.id) {
@@ -111,7 +114,10 @@ var Lobby = /** @class */ (function (_super) {
         this.participants.forEach(function (participant) {
             participant.player.dimension = _this.id;
         });
-        this.updateInterval = timers_1.setInterval(this.onUpdate.bind(this), 25); //Updates on 40Hz
+        this.updateInterval = timers_1.setInterval(function () {
+            _this.tick += 1;
+            _this.onUpdate.call(_this);
+        }, 1000 / Lobby.tickRate); //Updates on 40Hz
         this.nextVersion();
     };
     Lobby.prototype.join = function (player) {
@@ -154,6 +160,7 @@ var Lobby = /** @class */ (function (_super) {
             player.spawn(vstatic.spawnPosition);
         });
         this.participants = [];
+        this.tick = 0;
         this.updateInterval = null;
         this.nextVersion();
     };
@@ -195,6 +202,8 @@ var Lobby = /** @class */ (function (_super) {
     };
     Lobby.prototype.onUpdate = function () {
     };
+    //Statics
+    Lobby.tickRate = 40; //in Hz
     return Lobby;
 }(showable_1.default));
 exports.default = Lobby;

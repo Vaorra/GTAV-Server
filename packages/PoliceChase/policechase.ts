@@ -1,6 +1,6 @@
-import Lobby from "../LobbyManager/lobby";
+import Lobby from "../LobbySystem/lobby";
 import PoliceChaseLevel from "./levelInfo";
-import Participant from "../LobbyManager/participant";
+import Participant from "../LobbySystem/participant";
 import LevelManager from "./levelManager";
 import { setTimeout } from "timers";
 import * as vstatic from "../AdminTools/static";
@@ -11,8 +11,10 @@ const notMovingTimeLimit = 5; //in seconds
 
 export default class PoliceChase extends Lobby {
 
+    //Setup
     private level: PoliceChaseLevel;
 
+    //Objects
     private target: PlayerMp;
     private chasers: PlayerMp[] = [];
 
@@ -21,11 +23,16 @@ export default class PoliceChase extends Lobby {
     private vehicles: { [playerId: string]: VehicleMp } = {};
     private checkPoints: { [checkPointId: number]: { checkPoint: CheckpointMp, chaserIds: number[] } } = {};
     
+    //Time
     private tickSinceTargetStuck: number = 0; //1 second = 40 ticks
 
-    private startingPhaseTimeout: NodeJS.Timeout;
-    private chasingPhaseEndedTimeout: NodeJS.Timeout;
+    //Phases
+    private startingPhaseEnded: boolean = false;
+    private chasingPhaseEnded: boolean = false;
 
+    private hasShootingClearance: boolean = false;
+
+    //Status
     private isLevelSetup: boolean = false;
     
     constructor(id: number) {
@@ -61,9 +68,6 @@ export default class PoliceChase extends Lobby {
     finish() {
         super.end();
 
-        clearTimeout(this.startingPhaseTimeout);
-        clearTimeout(this.chasingPhaseEndedTimeout);
-
         //Ensure that hooks are done
         setTimeout(() => {
             mp.vehicles.forEachInDimension(this.getDimension(), (vehicle) => {
@@ -93,23 +97,32 @@ export default class PoliceChase extends Lobby {
             this.checkPoints = {};
     
             this.tickSinceTargetStuck = 0;
-    
-            this.startingPhaseTimeout = null;
-            this.chasingPhaseEndedTimeout = null;
+
+            this.startingPhaseEnded = false;
+            this.chasingPhaseEnded = false;
+
+            this.hasShootingClearance = false;
 
             this.isLevelSetup = false;
         }, 250);
     }
 
     onUpdate() {
-        if (this.isLevelSetup) {
+        if (!this.startingPhaseEnded && this.getTime() >= this.level.startingPhaseTime) {
+            this.startingPhaseEnded = true;
+            this.onStartingPhaseEnded();
+        }
+        else if (!this.chasingPhaseEnded && this.getTime() >= this.level.chasingPhaseTime + this.level.startingPhaseTime) {
+            this.chasingPhaseEnded = true;
+            this.onChasingPhaseEnded();
+        }
 
+        if (this.isLevelSetup) {
             //Check if target suck
             if (this.isTargetStuck()) {
                 if (this.tickSinceTargetStuck % 40 == 0) {
                     this.messageAllParticipants("The target has to move within " + (notMovingTimeLimit - this.tickSinceTargetStuck / 40) + " seconds!");
                 }
-
                 this.tickSinceTargetStuck += 1;
             }
 
@@ -130,12 +143,16 @@ export default class PoliceChase extends Lobby {
                 if (chaser.vehicle) {
                     for (let key in this.checkPoints) {
                         if (this.checkPoints[parseInt(key)].chaserIds.includes(chaser.id)) {
-                            chaser.vehicle.engine = false;
+                            if (chaser.vehicle.engine) {
+                                chaser.vehicle.engine = false;
+                            }
                             continue chaserLoop;
                         }
                     }
 
-                    chaser.vehicle.engine = true;
+                    if (!chaser.vehicle.engine){
+                        chaser.vehicle.engine = true;
+                    }
                 }
             }
 
@@ -255,7 +272,7 @@ export default class PoliceChase extends Lobby {
             });
 
             chaserVehicle.setColor(chaserInfo.vehicleColor1, chaserInfo.vehicleColor2);
-            chaserVehicle.numberPlate = "Officer " + chaser.name;
+            chaserVehicle.numberPlate = "Officer " + chaser.name.substr(0, 1) + ".";
             this.vehicles[chaser.id] = chaserVehicle;
 
             chaser.dimension = this.getDimension();
@@ -279,16 +296,11 @@ export default class PoliceChase extends Lobby {
             this.checkPoints[checkPoint.id] = { checkPoint: checkPoint, chaserIds: [chaser.id]};
         }
 
-        this.startingPhaseTimeout = setTimeout(this.onStartingPhaseEnded, this.level.chasingPhaseTime * 1000);
-
         this.isLevelSetup = true;
     }
 
     onStartingPhaseEnded() {
-        if (Object.keys(this.checkPoints).length === 0) {
-            this.chasingPhaseEndedTimeout = setTimeout(this.onChasingPhaseEnded, this.level.chasingPhaseTime * 1000);
-        }
-        else {
+        if (Object.keys(this.checkPoints).length > 0) {
             //Police won
             this.messageAllParticipants("The police has won: The target didn't manage to reach all the checkpoints in the given time!");
             this.finish();

@@ -10,9 +10,12 @@ export default class Lobby extends Showable {
     protected running: boolean = false;
     protected participants: Participant[] = [];
 
-    protected initialized: boolean = false;
+    protected tick: number = 0; //40 ticks = 1 second || 1 tick = 25ms = 0.025 seconds
 
     private updateInterval: NodeJS.Timeout;
+
+    //Statics
+    private static tickRate: number = 40; //in Hz
 
     constructor(id: number, gameMode: string) {
         super();
@@ -20,10 +23,13 @@ export default class Lobby extends Showable {
         this.gameMode = gameMode;
 
         mp.events.add({
+            //SERVER
             "playerEnterCheckpoint": (...args: any[]) => this.fowardIfInLobby(this.onPlayerEnterCheckpoint.bind(this), args),
             "playerEnterColshape": (...args: any[]) => this.fowardIfInLobby(this.onPlayerEnterColshape.bind(this), args),
             "playerDeath": (...args: any[]) => this.fowardIfInLobby(this.onPlayerDeath.bind(this), args),
-            "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit.bind(this), args)
+            "playerQuit": (...args: any[]) => this.fowardIfInLobby(this.onPlayerQuit.bind(this), args),
+            //CLIENT
+            "playerWeaponShot": (...args: any[]) => this.fowardIfInLobby(this.onPlayerWeaponShot.bind(this), args),
         });
     }
 
@@ -45,6 +51,10 @@ export default class Lobby extends Showable {
 
     getParticipants() {
         return this.participants;
+    }
+
+    getTime(): number {
+        return this.tick / Lobby.tickRate;
     }
 
     isParticipant(player: PlayerMp) {
@@ -78,7 +88,10 @@ export default class Lobby extends Showable {
             participant.player.dimension = this.id;
         });
 
-        this.updateInterval = setInterval(this.onUpdate.bind(this),  25); //Updates on 40Hz
+        this.updateInterval = setInterval(() => {
+            this.tick += 1;
+            this.onUpdate.call(this);
+        }, 1000 / Lobby.tickRate); //Updates on 40Hz
         
         this.nextVersion();
     }
@@ -136,6 +149,7 @@ export default class Lobby extends Showable {
 
         this.participants = [];
 
+        this.tick = 0;
         this.updateInterval = null;
 
         this.nextVersion();
@@ -172,6 +186,8 @@ export default class Lobby extends Showable {
     }
 
     //EVENTS
+
+    //SERVER
     onPlayerEnterCheckpoint(player: PlayerMp, checkpoint: CheckpointMp) {
     }
 
@@ -184,6 +200,11 @@ export default class Lobby extends Showable {
     onPlayerQuit(player: PlayerMp, exitType: string, reason: string) {
     }
 
+    //CLIENT
+    onPlayerWeaponShot(player: PlayerMp, targetPosition: Vector3Mp, targetEntity: EntityMp) {
+    }
+
+    //CUSTOM
     onUpdate() {
     }
 }
