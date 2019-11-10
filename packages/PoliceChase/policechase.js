@@ -30,9 +30,13 @@ var PoliceChase = /** @class */ (function (_super) {
         _this.blips = [];
         _this.vehicles = {};
         _this.checkPoints = {};
+        //Time
         _this.tickSinceTargetStuck = 0; //1 second = 40 ticks
+        //Phases
         _this.startingPhaseEnded = false;
         _this.chasingPhaseEnded = false;
+        _this.hasShootingClearance = false;
+        //Status
         _this.isLevelSetup = false;
         return _this;
     }
@@ -81,6 +85,7 @@ var PoliceChase = /** @class */ (function (_super) {
             _this.tickSinceTargetStuck = 0;
             _this.startingPhaseEnded = false;
             _this.chasingPhaseEnded = false;
+            _this.hasShootingClearance = false;
             _this.isLevelSetup = false;
         }, 250);
     };
@@ -224,7 +229,7 @@ var PoliceChase = /** @class */ (function (_super) {
                 dimension: this.getDimension()
             });
             chaserVehicle.setColor(chaserInfo.vehicleColor1, chaserInfo.vehicleColor2);
-            chaserVehicle.numberPlate = "Officer " + chaser.name;
+            chaserVehicle.numberPlate = "Officer " + chaser.name.substr(0, 1) + ".";
             this.vehicles[chaser.id] = chaserVehicle;
             chaser.dimension = this.getDimension();
             chaser.model = chaserInfo.playerSkin;

@@ -37,6 +37,7 @@ var Lobby = /** @class */ (function (_super) {
         _this.id = id;
         _this.gameMode = gameMode;
         mp.events.add({
+            //SERVER
             "playerEnterCheckpoint": function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -64,7 +65,15 @@ var Lobby = /** @class */ (function (_super) {
                     args[_i] = arguments[_i];
                 }
                 return _this.fowardIfInLobby(_this.onPlayerQuit.bind(_this), args);
-            }
+            },
+            //CLIENT
+            "playerWeaponShot": function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.fowardIfInLobby(_this.onPlayerWeaponShot.bind(_this), args);
+            },
         });
         return _this;
     }
@@ -192,6 +201,7 @@ var Lobby = /** @class */ (function (_super) {
         };
     };
     //EVENTS
+    //SERVER
     Lobby.prototype.onPlayerEnterCheckpoint = function (player, checkpoint) {
     };
     Lobby.prototype.onPlayerEnterColshape = function (player, colshape) {
@@ -200,6 +210,10 @@ var Lobby = /** @class */ (function (_super) {
     };
     Lobby.prototype.onPlayerQuit = function (player, exitType, reason) {
     };
+    //CLIENT
+    Lobby.prototype.onPlayerWeaponShot = function (player, targetPosition, targetEntity) {
+    };
+    //CUSTOM
     Lobby.prototype.onUpdate = function () {
     };
     //Statics
