@@ -143,3 +143,15 @@ mp.events.addCommand("spec", (player, fullText, targetName) => {
         }
     });
 });
+
+
+mp.events.addCommand('test', (player, fullText) => {
+    
+    let veh = player.vehicle;
+
+    veh.setIndicatorLights(0, true);
+
+    veh.data.IndicatorRight = !veh.data.IndicatorRight;
+    veh.data.IndicatorLeft = !veh.data.IndicatorLeft;
+
+});
