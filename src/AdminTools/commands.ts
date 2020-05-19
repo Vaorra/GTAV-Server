@@ -44,16 +44,19 @@ mp.events.addCommand("spawnwep", (player, fullText, weaponName, ammo) => {
     return player.outputChatBox(vstatic.prefix + "You don't have permissions!");
 });
 
-mp.events.addCommand("getpos", (player, fullText) => {
+mp.events.addCommand("getpos", (player, fullText, mark) => {
+    let pos = player.position;
+    player.outputChatBox(vstatic.prefix + "pos: X: " + pos.x +" Y: " + pos.y + " Z: " + pos.z);
+    console.log('{"x": ' + pos.x + ', "y": ' + pos.y + ', "z": ' + pos.z + ' }');
+    mp.markers.new(1, pos, 1);
+});
 
-    player.outputChatBox(vstatic.prefix + "pos: X: " + player.position.x +" Y: " + player.position.y + " Z: " + player.position.z);
-
+mp.events.addCommand("getheading", (player, fullText) => {
+    console.log(player.heading);
 });
 
 mp.events.addCommand("getdim", (player, fullText) => {
-
     player.outputChatBox(vstatic.prefix + "current dimension: " + player.dimension);
-
 });
 
 mp.events.addCommand("kill", (player, fullText) => {
@@ -149,6 +152,7 @@ mp.events.addCommand('test', (player, fullText) => {
     
     let veh = player.vehicle;
 
+    // @ts-ignore
     veh.setIndicatorLights(0, true);
 
     veh.data.IndicatorRight = !veh.data.IndicatorRight;

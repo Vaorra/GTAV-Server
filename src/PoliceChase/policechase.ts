@@ -1,7 +1,7 @@
 import Lobby from "../LobbySystem/lobby";
-import PoliceChaseLevel from "./levelInfo";
+import PoliceChaseLevel from "./policechaselevel";
 import Participant from "../LobbySystem/participant";
-import LevelManager from "./levelManager";
+import LevelManager from "../LevelSystem/levelManager";
 import { setTimeout } from "timers";
 import * as vstatic from "../AdminTools/static";
 
@@ -10,6 +10,7 @@ const notMovingSpeedLimit = 1;
 const notMovingTimeLimit = 5; //in seconds
 
 export default class PoliceChase extends Lobby {
+    private levelManager = new LevelManager<PoliceChaseLevel>("PoliceChase/levels");
 
     //Setup
     private level: PoliceChaseLevel;
@@ -52,7 +53,6 @@ export default class PoliceChase extends Lobby {
 
         while(pool.length > 0) {
             randomPoolIndex = Math.floor(Math.random() * pool.length);
-
             let chaser = this.participants[pool[randomPoolIndex]].player;
             this.messageToParticipant(chaser, "You are a chaser");
             this.chasers.push(chaser);
@@ -60,7 +60,7 @@ export default class PoliceChase extends Lobby {
         }
 
         //Retrieving level
-        this.level = LevelManager.getRandomLevel();
+        this.level = this.levelManager.getRandomLevel();
 
         this.setUpLevel();
     }

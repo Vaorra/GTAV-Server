@@ -1,0 +1,28 @@
+{
+    "id": 1,
+    "spawns": [
+        
+    ],
+    "weapons": [
+        "weapon_pistol_mk2",
+        "weapon_combatpistol",
+        "weapon_revolver",
+        "weapon_bullpupshotgun",
+        "weapon_assaultshotgun",
+        "weapon_smg_mk2",
+        "weapon_smg",
+        "weapon_bullpuprifle",
+        "weapon_carbinerifle",
+        "weapon_specialcarbine",
+        "weapon_advancedrifle",
+        "weapon_mg",
+        "weapon_combatmg_mk2",
+        "weapon_marksmanrifle",
+        "weapon_heavysniper",
+        "weapon_heavysniper_mk2",
+        "weapon_hominglauncher",
+        "weapon_rpg",
+        "weapon_musket",
+        "weapon_knife"
+    ]
+}
