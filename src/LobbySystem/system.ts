@@ -1,16 +1,18 @@
 import Lobby from "./lobby";
 import PoliceChase from "../PoliceChase/policechase";
 import Participant from "./participant";
+import GunGame from "../GunGame/gungame";
 
 let lobbies: Lobby[] = [];
 
 //Test Population
 lobbies.push(new PoliceChase(1));
+lobbies.push(new GunGame(2));
 
 setInterval(() => {
     lobbies.forEach((lobby) => {
         if (!lobby.isRunning() && lobby.isEveryoneReady()) {
-            (<any>lobby).run();
+            lobby.run();
         }
     });
 }, 1000);
@@ -56,7 +58,7 @@ mp.events.add("requestPlayerData", (player: PlayerMp) => {
 mp.events.add("startLobby", (player: PlayerMp, lobbyId: number) => {
     lobbies.forEach((lobby) => {
         if (lobbyId === lobby.getId()) {
-            (<any>lobbies[0]).run();
+            lobbies[0].run();
         }
     });
 });

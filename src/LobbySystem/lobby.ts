@@ -1,24 +1,27 @@
 import Participant from "./participant";
 import * as vstatic from "../AdminTools/static";
 import { throws } from "assert";
-import Showable from "./showable";
 import { setInterval } from "timers";
 
-export default class Lobby extends Showable {
+export default abstract class Lobby {
+    abstract run(): void;
+
+    private version: number;
+
     protected id: number;
     protected gameMode: string;
     protected running: boolean = false;
     protected participants: Participant[] = [];
 
-    protected tick: number = 0; //40 ticks = 1 second || 1 tick = 25ms = 0.025 seconds
+    protected tick: number = 0; // 40 ticks = 1 second || 1 tick = 25ms = 0.025 seconds
 
     private updateInterval: NodeJS.Timeout;
 
     //Statics
-    private static tickRate: number = 40; //in Hz
+    private static tickRate: number = 40; // in Hz
 
     constructor(id: number, gameMode: string) {
-        super();
+        this.version = 0;
         this.id = id;
         this.gameMode = gameMode;
 
@@ -31,6 +34,14 @@ export default class Lobby extends Showable {
             //CLIENT
             "playerWeaponShot": (...args: any[]) => this.fowardIfInLobby(this.onPlayerWeaponShot.bind(this), args),
         });
+    }
+
+    nextVersion() {
+        this.version += 1;
+    }
+
+    getVersion() {
+        return this.version;
     }
 
     getId() {
@@ -82,7 +93,7 @@ export default class Lobby extends Showable {
         return this.participants.length;
     }
 
-    start() {
+    protected start() {
         this.running = true;
         this.participants.forEach((participant) => {
             participant.player.dimension = this.id;
@@ -132,11 +143,13 @@ export default class Lobby extends Showable {
         this.nextVersion();
     }
 
-    end() {
+    protected end() {
         this.running = false;
 
+        // Stop update Interval
         clearInterval(this.updateInterval);
 
+        // Participants (zurück an alten Standort)
         this.participants.forEach((participant) => {
             let player = participant.player;
 
@@ -153,8 +166,26 @@ export default class Lobby extends Showable {
         this.updateInterval = null;
 
         this.nextVersion();
+
+        // Object clean-up
+        mp.vehicles.forEachInDimension(this.getDimension(), (vehicle) => {
+            vehicle.destroy();
+        });
+        
+        mp.checkpoints.forEachInDimension(this.getDimension(), (checkPoint) => {
+            checkPoint.destroy();
+        });
+
+        mp.objects.forEachInDimension(this.getDimension(), (object) => {
+            object.destroy();
+        });
+
+        mp.blips.forEachInDimension(this.getDimension(), (blip) => {
+            blip.destroy();
+        });
     }
 
+    // Event forwarding
     fowardIfInLobby(callback: Function, args: any) {
         if (args[0].dimension === this.id) {
             callback(...args);
@@ -185,9 +216,9 @@ export default class Lobby extends Showable {
         };
     }
 
-    //EVENTS
+    // Event Definitions
 
-    //SERVER
+    // Server
     onPlayerEnterCheckpoint(player: PlayerMp, checkpoint: CheckpointMp) {
     }
 
@@ -200,11 +231,11 @@ export default class Lobby extends Showable {
     onPlayerQuit(player: PlayerMp, exitType: string, reason: string) {
     }
 
-    //CLIENT
+    // Client
     onPlayerWeaponShot(player: PlayerMp, targetPosition: Vector3Mp, targetEntity: EntityMp) {
     }
 
-    //CUSTOM
+    // Custom
     onUpdate() {
     }
 }

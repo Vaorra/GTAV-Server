@@ -1,5 +1,4 @@
 import fs from "fs";
-import PoliceChaseLevel from "../PoliceChase/policechaselevel";
 
 export default class LevelManager<T> {
     private levelsLocation: string;

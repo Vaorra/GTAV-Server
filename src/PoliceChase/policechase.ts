@@ -1,9 +1,8 @@
 import Lobby from "../LobbySystem/lobby";
-import PoliceChaseLevel from "./policechaselevel";
-import Participant from "../LobbySystem/participant";
 import LevelManager from "../LevelSystem/levelManager";
 import { setTimeout } from "timers";
 import * as vstatic from "../AdminTools/static";
+import { PoliceChaseLevel } from "./policechaselevel";
 
 const notMovingDistanceLimit = 7;
 const notMovingSpeedLimit = 1;
@@ -70,22 +69,6 @@ export default class PoliceChase extends Lobby {
 
         //Ensure that hooks are done
         setTimeout(() => {
-            mp.vehicles.forEachInDimension(this.getDimension(), (vehicle) => {
-                vehicle.destroy();
-            });
-            
-            mp.checkpoints.forEachInDimension(this.getDimension(), (checkPoint) => {
-                checkPoint.destroy();
-            });
-    
-            mp.objects.forEachInDimension(this.getDimension(), (object) => {
-                object.destroy();
-            });
-
-            mp.blips.forEachInDimension(this.getDimension(), (blip) => {
-                blip.destroy();
-            });
-    
             this.level = null;
     
             this.target = null;

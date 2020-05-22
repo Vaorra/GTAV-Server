@@ -17,4 +17,8 @@ export default class Participant {
     isReady() {
         return this.ready;
     }
+
+    is(player: PlayerMp) {
+        return player.id === this.player.id;
+    }
 }
