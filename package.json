@@ -10,7 +10,8 @@
     "@types/ragemp-s": "github:CocaColaBear/types-ragemp-s#master"
   },
   "scripts": {
-    "build": "tsc"
+    "compile": "tsc",
+    "build": "npm run compile && xcopy src dist /F /E /H /I /Y /exclude:excludedfileslist.txt"
   },
   "repository": {
     "type": "git",
