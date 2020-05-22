@@ -3,6 +3,7 @@ import LevelManager from "../LevelSystem/levelManager";
 import { GunGameLevel } from "./gungamelevel";
 import GunGameStats from "./gungamestats";
 import { stat } from "fs";
+import { dirname } from "path";
 
 const demotionDeathLimit = 5;
 
@@ -61,13 +62,12 @@ export default class GunGame extends Lobby {
                 killedStats.deathsDuringStage = 0;
                 killedStats.stage -= 1;
 
-                player.removeAllWeapons();
-                player.giveWeapon(mp.joaat(this.level.weapons[killedStats.stage]), 1000);
-
                 this.messageToParticipant(player, "You got demoted [Stage " + killedStats.stage + "]");
-
-                this.respawnPlayer(player);
             }
+
+            player.removeAllWeapons();
+            this.respawnPlayer(player);
+            player.giveWeapon(mp.joaat(this.level.weapons[killedStats.stage]), 1000);
 
             if (killer && player.id !== killer.id) {
                 let killerStats = this.stats[killer.id];
@@ -75,6 +75,8 @@ export default class GunGame extends Lobby {
                 killerStats.kills += 1;
                 killerStats.deathsDuringStage = 0;
                 killerStats.stage += 1;
+
+                killer.health = 100;
 
                 // Player won the game
                 if (killerStats.stage === this.level.weapons.length - 1) {
@@ -90,9 +92,12 @@ export default class GunGame extends Lobby {
                     }, 5000);
                 } else {
                     killer.removeAllWeapons();
-                    player.giveWeapon(mp.joaat(this.level.weapons[killerStats.stage]), 1000);
 
-                    this.messageToParticipant(player, "You got promoted [Stage " + killerStats.stage + "]");
+                    setTimeout(() => {
+                        killer.giveWeapon(mp.joaat(this.level.weapons[killerStats.stage]), 1000);
+                    }, 500);
+
+                    this.messageToParticipant(killer, "You got promoted [Stage " + killerStats.stage + "]");
                 }
             }
         }
@@ -104,19 +109,20 @@ export default class GunGame extends Lobby {
         for (let participant of this.participants) {
             if (participant.player.id !== player.id) {
                 enemyPositions.push(participant.player.position);
+                console.log(participant.player.position);
             }
         }
 
-        let nearestEnemy: number[];
+        let nearestEnemy: number[] = [];
 
         // Calculate distance to nearest enemy for every spawn
         this.level.spawns.forEach((spawn, i) => {
             enemyPositions.forEach((position) => {
                 // Calc distance between enemy and spawn
-                let distance = position.subtract(spawn.position).length();
+                let distance = new mp.Vector3(position.x - spawn.position.x, position.y - spawn.position.y, position.z - spawn.position.z).length();
 
                 // If distance is smaller than previous set as new smallest
-                if (!nearestEnemy[i] || nearestEnemy[i] > distance) {
+                if (nearestEnemy.length === i || nearestEnemy[i] > distance) {
                     nearestEnemy[i] = distance;
                 }
             });
@@ -131,7 +137,7 @@ export default class GunGame extends Lobby {
         });
 
         let spawn = this.level.spawns[best];
-        player.position = spawn.position;
+        player.spawn(spawn.position);
         player.heading = spawn.heading;
     }
 }
